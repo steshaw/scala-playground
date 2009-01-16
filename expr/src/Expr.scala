@@ -1,5 +1,5 @@
 //
-// From http://jim-mcbeath.blogspot.com/2008/09/scala-parser-combinators.html
+// Originally from http://jim-mcbeath.blogspot.com/2008/09/scala-parser-combinators.html
 //
 
 sealed abstract class Expr {
@@ -42,7 +42,7 @@ object ExprParser extends StandardTokenParsers {
     phrase(expr)(tokens)
   }
 
-  def expr = (sum | value)
+  def expr = (binary(minPrec) | value)
 
 //  def sum = value ~ "+" ~ value ^^ {
 //    case left ~ "+" ~ right => EAdd(left, right)
@@ -68,6 +68,27 @@ object ExprParser extends StandardTokenParsers {
       "+" ^^^ { (a:Expr, b:Expr) => EAdd(a,b) }
     | "-" ^^^ { (a:Expr, b:Expr) => ESub(a,b) }
   )
+
+  def binaryOp(level:Int):Parser[((Expr,Expr)=>Expr)] = {
+    level match {
+      case 1 =>
+        "+" ^^^ { (a:Expr, b:Expr) => EAdd(a,b) } | 
+        "-" ^^^ { (a:Expr, b:Expr) => ESub(a,b) }
+
+      case 2 =>
+        "*" ^^^ { (a:Expr, b:Expr) => EMul(a,b) } |
+        "/" ^^^ { (a:Expr, b:Expr) => EDiv(a,b) }
+
+      case _ => error("bad precendence level: " + level)
+    }
+  }
+
+  val minPrec = 1
+  val maxPrec = 2
+
+  def binary(level:Int):Parser[Expr] =
+    if (level > maxPrec) term
+    else binary(level + 1) * binaryOp(level)
 
   def product = term * (
     "*" ^^^ { (a:Expr, b:Expr) => EMul(a,b) }
@@ -127,4 +148,4 @@ object Main {
 }
 
 // Useful when running as a script.
-//Main.main(argv)
+Main.main(argv)
