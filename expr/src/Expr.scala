@@ -1,5 +1,5 @@
 //
-// Adapted from http://jim-mcbeath.blogspot.com/2008/09/scala-parser-combinators.html
+// From http://jim-mcbeath.blogspot.com/2008/09/scala-parser-combinators.html
 //
 
 sealed abstract class Expr {
