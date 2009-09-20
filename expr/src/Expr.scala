@@ -72,7 +72,7 @@ object ExprParser extends StandardTokenParsers {
   def binaryOp(level:Int):Parser[((Expr,Expr)=>Expr)] = {
     level match {
       case 1 =>
-        "+" ^^^ { (a:Expr, b:Expr) => EAdd(a,b) } | 
+        "+" ^^^ { (a:Expr, b:Expr) => EAdd(a,b) } |
         "-" ^^^ { (a:Expr, b:Expr) => ESub(a,b) }
 
       case 2 =>
