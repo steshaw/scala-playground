@@ -1,4 +1,3 @@
-
 //
 // See http://lachlanrambling.blogspot.com/2009/12/some-simple-scala-null-tricks.html
 //

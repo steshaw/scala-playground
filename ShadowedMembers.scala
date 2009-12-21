@@ -7,4 +7,3 @@ class X(val i:Int)
 class Y(val i:Int) extends X(19) {
   println(i)
 }
-
