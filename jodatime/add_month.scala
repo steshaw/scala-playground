@@ -29,3 +29,11 @@ def functionalStyle() {
   }
   iter(1, new DateTime("2009-12-31"))
 }
+
+def lazyFunctionalStyle() {
+  Stream.from(1) zip Stream.iterate(new DateTime("2009-12-31"))(_.plusMonths(1)).drop(1).take(13) foreach {
+    case (n, dt) => 
+      println(n)
+      println(dt)
+  }
+}
