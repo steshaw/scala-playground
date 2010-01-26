@@ -46,7 +46,7 @@ trait TestParser extends StdTokenParsers  with ImplicitConversions with TestSynt
   def aexpr : Parser[Term] =
   ( numericLit ^^ (_.toInt) ^^ Lit
   | name ^^ Ref
-  | "unit" ^^^ Unit()
+  | "unit" ^^^ Unit
   | "(" ~> expr1 <~ ")"
   )
   
@@ -63,6 +63,6 @@ trait TestParser extends StdTokenParsers  with ImplicitConversions with TestSynt
   | "/" ^^^ Ref(Name("/"))
   )
   
-  def parse(r: Reader[char]) : ParseResult[Term] =
+  def parse(r: Reader[Char]) : ParseResult[Term] =
     phrase(expr1)(new lexical.Scanner(r))
 }
