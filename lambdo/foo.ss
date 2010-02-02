@@ -24,7 +24,7 @@
   (if (< from to)
     (begin
       (f from)
-      (loop (+ from step) to f))
+      (loop (+ from step) to step f))
     #f))
 
 (loop 0 10 1 (lambda (n) (fact n)))

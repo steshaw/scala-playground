@@ -73,7 +73,7 @@ object LambdoSyntax {
       case L(S("begin") :: cmds) => cmds
     }
   }
-  
+
   /* Definitions */
   abstract class Def(val name : String) 
 
@@ -222,7 +222,7 @@ class LambdoInterpreter {
 
     case lam @ Lambda(args, body) => Closure(lam, env)
 
-    case App(f, args) => { 
+    case App(f, args) => {
       val proc = eval(f,env)
 
       val vals : List[Value] = args map (eval(_,env))
@@ -235,10 +235,11 @@ class LambdoInterpreter {
         case (Prim("-"),List(Z(a), Z(b))) => Z(a - b)
         case (Prim("*"),List(Z(a), Z(b))) => Z(a * b)
         case (Prim("/"),List(Z(a), Z(b))) => Z(a / b)
+        case (Prim("<"),List(Z(a), Z(b))) => if (a < b) True else False
         case (Prim("="),List(Z(a), Z(b))) => if (a == b) True else False
       }
     }
-    
+ 
     // Sugar:
     case If(cond,cons,alt) =>
       if (eval(cond,env) != False)
