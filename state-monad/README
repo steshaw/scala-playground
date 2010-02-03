@@ -2,10 +2,6 @@
 See http://blog.tmorris.net/the-state-monad-for-scala-users/
 See also http://blog.tmorris.net/dear-java-guy-state-is-a-monad/
 
-Tony motivates his introduction of the State monad by looking a tree numbering problem. My first instinct would be to implement
-this imperatively (TreeNumberImperativeStyle.scala) but that doesn't help understand the state monad :). TreeNumber.scala is
-the solution solved "long hand" but in a functional style. It's equivalent to Tony's solution but easier for me to understand (I
-make use of a couple of intermediate vals in the number function).
+Tony motivates his introduction of the State monad by looking a tree numbering problem. My first instinct would be to implement this imperatively (TreeNumberImperativeStyle.scala) but that doesn't help understand the state monad :). TreeNumber.scala is the solution solved "long hand" but in a functional style. It's equivalent to Tony's solution but easier for me to understand (I make use of a couple of intermediate vals in the number function).
 
-Currently in all sorts of bother with the TreeNumberWithStateMonad.scala version. I'm not compiling against Scalaz. I wanted
-to try to use the State trait myself and implement the init and modify functions. Well, it doesn't even compile at the moment...
+Currently in all sorts of bother with the TreeNumberWithStateMonad.scala version. I'm not compiling against Scalaz. I wanted to try to use the State trait myself and implement the init and modify functions. Well, it doesn't even compile at the moment...
