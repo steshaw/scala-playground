@@ -1,5 +1,6 @@
 
 See http://blog.tmorris.net/the-state-monad-for-scala-users/
+See also http://blog.tmorris.net/dear-java-guy-state-is-a-monad/
 
 Tony motivates his introduction of the State monad by looking a tree numbering problem. My first instinct would be to implement
 this imperatively (TreeNumberImperativeStyle.scala) but that doesn't help understand the state monad :). TreeNumber.scala is
