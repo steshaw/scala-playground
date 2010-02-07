@@ -1,3 +1,7 @@
+package steshaw
+
+// This differs to other versions of the tree numbering as it clobbers the element of the tree and therefore
+// also assumes that it is an Int.
 object TreeNumberImperativeStyle {
 
   sealed abstract class Tree[+A]

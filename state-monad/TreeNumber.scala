@@ -1,8 +1,10 @@
+package steshaw
+
 object TreeNumber {
 
   sealed abstract class Tree[+A] {
-    def number(seed: Int): (Tree[(Int)], Int) = this match {
-      case Leaf(n) => (Leaf(seed), seed+1)
+    def number(seed: Int): (Tree[(A, Int)], Int) = this match {
+      case Leaf(n) => (Leaf((n, seed)), seed+1)
       case Branch(l, r) => {
         val (lt, seed1) = l.number(seed)
         val (rt, seed2) = r.number(seed1)
@@ -16,7 +18,7 @@ object TreeNumber {
   def main(args: Array[String]) = {
     def go(tree: Tree[Int]) {
       println(tree)
-      println(tree.number(1)._1)
+      println(tree.number(10)._1)
     }
 
     go(Branch(Branch(Leaf(2), Leaf(6)), Leaf(9)))
