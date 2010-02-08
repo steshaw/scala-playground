@@ -42,7 +42,7 @@ object TreeNumberWithScalaz5StateMonad {
 
   def number[A](t: Tree[A]): State[Int, Tree[(A, Int)]] = t match {
     case Leaf(x) =>
-      for(s <- init[Int]; n <- modify((_:Int) + 1))
+      for(s <- init[Int]; n <- modify[Int](1+))
         yield Leaf((x, s))
     case Branch(l, r) =>
       for(lt <- number(l); rt <- number(r))
