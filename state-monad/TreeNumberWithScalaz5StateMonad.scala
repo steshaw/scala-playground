@@ -40,6 +40,9 @@ object TreeNumberWithScalaz5StateMonad {
 
   import Scalaz5._
 
+  /**
+   * Number the tree using state monad and sequence comprehensions
+   */
   def number[A](t: Tree[A]): State[Int, Tree[(A, Int)]] = t match {
     case Leaf(x) =>
       for(s <- init[Int]; n <- modify[Int](1+))
@@ -49,14 +52,38 @@ object TreeNumberWithScalaz5StateMonad {
         yield Branch(lt, rt)
   }
 
+  type NumTree[A] = Tree[(A, Int)]
+
+  /**
+   * Number the tree using flatMap and map directly in an attempt to better understand it. Also explicitly mention the
+   * type signatures (again, to help understanding).
+   */
+  def number2[A](t: Tree[A]): State[Int, Tree[(A, Int)]] = t match {
+    case Leaf(x) =>
+      init[Int] flatMap ((s:Int) => modify[Int](1+) map ((_:Unit) => Leaf((x, s))))
+    case Branch(l, r) =>
+      number(l) flatMap((lt:NumTree[A]) => number(r) map ((rt:NumTree[A]) => Branch(lt, rt)))
+  }
+
   def main(args: Array[String]) = {
     def go(tree: Tree[Int]) {
       println(tree)
       println(number(tree) ! 10)
     }
+    def go2(tree: Tree[Int]) {
+      println(tree)
+      println(number2(tree) ! 10)
+    }
 
-    go(Branch(Branch(Leaf(2), Leaf(6)), Leaf(9)))
-    go(Branch(Branch(Leaf(2), Branch(Leaf(4), Leaf(5))), Leaf(9)))
+    val t1 = Branch(Branch(Leaf(2), Leaf(6)), Leaf(9))
+    val t2 = Branch(Branch(Leaf(2), Branch(Leaf(4), Leaf(5))), Leaf(9))
+
+    go(t1)
+    go(t2)
+    println
+
+    go2(t1)
+    go2(t2)
   }
 
 }
