@@ -10,12 +10,12 @@ object TreeNumberWithStateMonad {
   trait State[S, A] {
     val s: Function[S, (S, A)]
     def flatMap[B](f: A => State[S, B]): State[S, B] = new State[S, B] {
-      override val s: Function[S, (S, B)] = x => State.this.s(x) match {
+      override val s: Function[S, (S, B)] = (x:S) => State.this.s(x) match {
         case (s, a) => f(a).s(s)
       }
     }
     def map[B](f: A => B): State[S, B] = new State[S, B] {
-      override val s: Function[S, (S, B)] = s0 => State.this.s(s0) match {
+      override val s: Function[S, (S, B)] = (s0:S) => State.this.s(s0) match {
         case (s, a) => (s, f(a))
       }
     }
