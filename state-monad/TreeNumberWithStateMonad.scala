@@ -24,8 +24,8 @@ object TreeNumberWithStateMonad {
   def init[S] = new State[S, S] {
     override val s: Function[S, (S, S)] = (init => (init, init))
   }
-  def modify[S](f: S => S) = new State[S, S] {
-    override val s: Function[S, (S, S)] = (init => (f(init), init))
+  def modify[S](f: S => S) = new State[S, Unit] {
+    override val s: Function[S, (S, Unit)] = (init => (f(init), ()))
   }
 
   def number[A](t: Tree[A]): State[Int, Tree[(A, Int)]] = t match {
@@ -41,7 +41,7 @@ object TreeNumberWithStateMonad {
 
   def number2[A](t: Tree[A]): State[Int, NumTree[A]] = t match {
     case Leaf(x) =>
-      init[Int] flatMap ((s:Int) => modify[Int](1+) map ((_:Int) => Leaf((x, s))))
+      init[Int] flatMap ((s:Int) => modify[Int](1+) map ((_:Unit) => Leaf((x, s))))
     case Branch(l, r) =>
       number(l) flatMap((lt:NumTree[A]) => number(r) map ((rt:NumTree[A]) => Branch(lt, rt)))
   }
