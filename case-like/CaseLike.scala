@@ -1,3 +1,8 @@
+//
+// Adapted from post to scala-debate by Jorge Ortiz:
+//   http://scala-programming-language.1934581.n4.nabble.com/Case-classes-and-their-discontents-td2009506.html#a2009511
+//
+
 import scala.runtime.ScalaRunTime
 
 trait CaseLike extends Product {
@@ -11,20 +16,10 @@ trait CaseLike extends Product {
     case that: Product => this.productPrefix == that.productPrefix
     case _ => false
   }
+
+  override def productPrefix = this.getClass.getName
+  override def productArity = parts.size
+  override def productElement(n: Int) = parts(n)
+
+  def parts: Seq[Any]
 }
-
-class Person(val name: String, val age: Int) extends CaseLike {
-  def productArity = 2
-  def productElement(i: Int) = if (i == 0) name else if (i == 1) age else error("productElement index out of bounds")
-}
-
-val bob1 = new Person("Bob", 25)
-val bob2 = new Person("Bob", 25)
-val fred = new Person("Fred", 40)
-
-println(bob1)
-println(bob2)
-println(bob1 == bob2)
-println(fred)
-println(fred == bob2)
-println(bob1 == fred)
