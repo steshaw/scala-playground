@@ -78,7 +78,7 @@ object Sort {
     implicit def orderingToThenBy2[T](t: Ordering[T]) = new {
       def thenBy[S](f: (T) => S)(implicit orderingS: Ordering[S]): Ordering[T] = combine(t, Ordering.by(f)(orderingS))
     }
-    val answer = ps.sorted(by((p:Person) => p.age) thenBy ((p:Person) => p.name))
+    val answer = ps.sorted(by((p: Person) => p.age).reverse thenBy (_.name))
     println(answer)
   }
 
