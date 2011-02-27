@@ -8,20 +8,31 @@
 object Sort {
   case class Person(name:String, age:Int)
 
-  val ps = List(Person("Betty", 28), Person("Wilma", 25), Person("Fred", 25), Person("Barney", 28))
+  val ps = List(
+      Person("Barney", 24),
+      Person("Wilma", 25), 
+      Person("Betty", 24), 
+      Person("Fred", 25)
+  )
 
   println(ps sortBy {i => (i.age, i.name)})
-
-  case class Reverse[T](t: T)
-  def reverse[T](t:T) = Reverse(t)
-
-  implicit def ReverseOrdering[T: Ordering]: Ordering[Reverse[T]] = Ordering[T].reverse.on(_.t)
-
-  println(ps.sortBy(p => (reverse(p.age), p.name)))
+  println(ps sortBy {i => (-i.age, i.name)})
+  println()
 
   {
-    implicit val o = Ordering.by((p:Person) => (p.age, p.name))
-    println(ps.sorted)
+    case class Reverse[T](t: T)
+    def reverse[T](t:T) = Reverse(t)
+
+    implicit def ReverseOrdering[T: Ordering]: Ordering[Reverse[T]] = Ordering[T].reverse.on(_.t)
+
+    {
+      implicit val o = Ordering.by((p:Person) => (p.age, p.name))
+      println(ps.sorted)
+    }
+
+    println(ps.sortBy(p => (reverse(p.age), p.name)))
+
+    println()
   }
 
   def combine[T](o1: Ordering[T], o2: Ordering[T]) = new Ordering[T] {
@@ -31,17 +42,12 @@ object Sort {
         case n => n
       }
   }
-  def multiSort[T](xs: Seq[T])(orderings: Ordering[T]*) = xs.sorted(orderings.reduceLeft(combine))
 
   {
-    val result1 = multiSort(ps)(Ordering.by(_.age), Ordering.by(_.name))
-    println(result1)
+    def multiSort[T](xs: Seq[T])(orderings: Ordering[T]*) = {
+      xs.sorted(orderings.reduceLeft(combine))
+    }
 
-    val result2 = multiSort(ps)((Ordering.by[Person, Int](_.age)).reverse, Ordering.by(_.name))
-    println(result2)
-  }
-
-  {
     import scala.math.Ordering.by
 
     val result1 = multiSort(ps)(by(_.age), by(_.name))
@@ -49,11 +55,24 @@ object Sort {
 
     val result2 = multiSort(ps)((by[Person, Int](_.age)).reverse, by(_.name))
     println(result2)
+
+    println()
   }
 
   {
     import scala.math.Ordering.by
-    val ordering = combine(by[Person, Int](_.age).reverse, by[Person, String](_.name))
+    {
+      val ordering = combine(by[Person, Int](_.age), by[Person, String](_.name))
+      val result = ps.sorted(ordering)
+      println(result)
+    }
+    {
+      val ordering = combine(by[Person, Int](_.age).reverse, by[Person, String](_.name))
+      val result = ps.sorted(ordering)
+      println(result)
+    }
+
+    println()
   }
 
   {
@@ -67,10 +86,18 @@ object Sort {
           }
       }
     }
-    val ordering = by[Person, Int](_.age).reverse.thenBy(by[Person, String](_.name))
-    val ordering2 = orderingToThenBy(by[Person, Int](_.age).reverse).thenBy(by[Person, String](_.name))
-    val result2 = ps.sorted(ordering)
-    println(result2)
+    {
+      val ordering = by[Person, Int](_.age).thenBy(by[Person, String](_.name))
+      val result1 = ps.sorted(ordering)
+      println(result1)
+    }
+    {
+      val ordering = by[Person, Int](_.age).reverse.thenBy(by[Person, String](_.name))
+      val result2 = ps.sorted(ordering)
+      println(result2)
+    }
+
+    println()
   }
 
   {
@@ -78,8 +105,12 @@ object Sort {
     implicit def orderingToThenBy2[T](t: Ordering[T]) = new {
       def thenBy[S](f: (T) => S)(implicit orderingS: Ordering[S]): Ordering[T] = combine(t, Ordering.by(f)(orderingS))
     }
-    val result = ps.sorted(by((p: Person) => p.age).reverse thenBy (_.name))
-    println(result)
+    val result1 = ps.sorted(by((p: Person) => p.age) thenBy (_.name))
+    println(result1)
+    val result2 = ps.sorted(by((p: Person) => p.age).reverse thenBy (_.name))
+    println(result2)
+
+    println()
   }
 
   {
@@ -91,9 +122,19 @@ object Sort {
     implicit def orderingToThenBy2[T](t: Ordering[T]) = new {
       def thenBy[S](f: (T) => S)(implicit orderingS: Ordering[S]): Ordering[T] = combine(t, by(f)(orderingS))
     }
+    implicit def functionToThenBy[A, B](f1: A=>B)(implicit orderingB: Ordering[B]) = new {
+      def thenBy[S](f2: (A) => S)(implicit orderingS: Ordering[S]): Ordering[A] = combine(by(f1)(orderingB), by(f2)(orderingS))
+    }
+    implicit def functionToOrdering[A, B](f: A=>B)(implicit orderingB: Ordering[B]): Ordering[A] = Ordering.by(f)
+
     // C# code: items.orderBy(item => item.foo).thenBy(item => item.bar)
-    val result = ps.orderBy (by((p: Person) => p.age).reverse thenBy (_.name))
-    println(result)
+    val result1 = ps.orderBy (((p: Person) => p.age) thenBy (_.name))
+    println(result1)
+
+    val result2 = ps.orderBy (((p: Person) => p.age).reverse thenBy (_.name))
+    println(result2)
+
+    println()
   }
 
   def main(args: Array[String]) {
