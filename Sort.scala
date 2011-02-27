@@ -4,63 +4,85 @@
 
 // C# code: items.orderBy(item => item.foo).thenBy(item => item.bar)
 
-case class Person(name:String, age:Int)
 
-val ps = List(Person("Wilma", 25), Person("Fred", 25), Person("Barnaby", 28))
+object Sort {
+  case class Person(name:String, age:Int)
 
-println(ps sortBy {i => (i.age, i.name)})
+  val ps = List(Person("Betty", 28), Person("Wilma", 25), Person("Fred", 25), Person("Barney", 28))
 
-case class Reverse[T](t: T)
-def reverse[T](t:T) = Reverse(t)
+  println(ps sortBy {i => (i.age, i.name)})
 
-implicit def ReverseOrdering[T: Ordering]: Ordering[Reverse[T]] = Ordering[T].reverse.on(_.t)
+  case class Reverse[T](t: T)
+  def reverse[T](t:T) = Reverse(t)
 
-println(ps.sortBy(p => (reverse(p.age), p.name)))
+  implicit def ReverseOrdering[T: Ordering]: Ordering[Reverse[T]] = Ordering[T].reverse.on(_.t)
 
-{
-  implicit val o = Ordering.by((p:Person) => (p.age, p.name))
-  println(ps.sorted)
-}
+  println(ps.sortBy(p => (reverse(p.age), p.name)))
 
-def combine[T](o1: Ordering[T], o2: Ordering[T]) = new Ordering[T] {
-  def compare(x: T, y:T) =
-    o1.compare(x, y) match {
-      case 0 => o2.compare(x, y)
-      case n => n
-    }
-}
-def multiSort[T](xs: Seq[T])(orderings: Ordering[T]*) = xs.sorted(orderings.reduceLeft(combine))
-
-{
-  val answer1 = multiSort(ps)(Ordering.by(_.age), Ordering.by(_.name))
-  println(answer1)
-
-  val answer2 = multiSort(ps)((Ordering.by[Person, Int](_.age)).reverse, Ordering.by(_.name))
-  println(answer2)
-}
-
-{
-  import scala.math.Ordering.by
-
-  val answer1 = multiSort(ps)(by(_.age), by(_.name))
-  println(answer1)
-
-  val answer2 = multiSort(ps)((by[Person, Int](_.age)).reverse, by(_.name))
-  println(answer2)
-}
-
-{
-  import scala.math.Ordering.by
-  val ordering = combine(by[Person, Int](_.age).reverse, by[Person, String](_.name))
-}
-
-{
-  import scala.math.Ordering.by
-  class ThenBy[T](o: Ordering[T]) {
-    def thenBy(o2: Ordering[T]): Ordering[T] = combine(o, o2)
+  {
+    implicit val o = Ordering.by((p:Person) => (p.age, p.name))
+    println(ps.sorted)
   }
-  implicit def orderingToThenBy[T](t: Ordering[T]): ThenBy[T] = new ThenBy[T](t)
-  val ordering = by[Person, Int](_.age).reverse.thenBy(by[Person, String](_.name))
-  val answer2 = ps.sorted(ordering)
-  println(answer2)
+
+  def combine[T](o1: Ordering[T], o2: Ordering[T]) = new Ordering[T] {
+    def compare(x: T, y:T) =
+      o1.compare(x, y) match {
+        case 0 => o2.compare(x, y)
+        case n => n
+      }
+  }
+  def multiSort[T](xs: Seq[T])(orderings: Ordering[T]*) = xs.sorted(orderings.reduceLeft(combine))
+
+  {
+    val answer1 = multiSort(ps)(Ordering.by(_.age), Ordering.by(_.name))
+    println(answer1)
+
+    val answer2 = multiSort(ps)((Ordering.by[Person, Int](_.age)).reverse, Ordering.by(_.name))
+    println(answer2)
+  }
+
+  {
+    import scala.math.Ordering.by
+
+    val answer1 = multiSort(ps)(by(_.age), by(_.name))
+    println(answer1)
+
+    val answer2 = multiSort(ps)((by[Person, Int](_.age)).reverse, by(_.name))
+    println(answer2)
+  }
+
+  {
+    import scala.math.Ordering.by
+    val ordering = combine(by[Person, Int](_.age).reverse, by[Person, String](_.name))
+  }
+
+  {
+    import scala.math.Ordering.by
+    implicit def orderingToThenBy[T](t: Ordering[T]) = new {
+      def thenBy(ordering: Ordering[T]): Ordering[T] = new Ordering[T] {
+        def compare(a: T, b: T) =
+          t.compare(a, b) match {
+            case 0 => ordering.compare(a, b)
+            case n => n
+          }
+      }
+    }
+    val ordering = by[Person, Int](_.age).reverse.thenBy(by[Person, String](_.name))
+    val ordering2 = orderingToThenBy(by[Person, Int](_.age).reverse).thenBy(by[Person, String](_.name))
+    val answer2 = ps.sorted(ordering)
+    println(answer2)
+  }
+
+  {
+    import scala.math.Ordering.by
+    implicit def orderingToThenBy2[T](t: Ordering[T]) = new {
+      def thenBy[S](f: (T) => S)(implicit orderingS: Ordering[S]): Ordering[T] = combine(t, Ordering.by(f)(orderingS))
+    }
+    val answer = ps.sorted(by((p:Person) => p.age) thenBy ((p:Person) => p.name))
+    println(answer)
+  }
+
+  def main(args: Array[String]) {
+    println("main")
+  }
 }
