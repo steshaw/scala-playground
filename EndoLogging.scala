@@ -1,5 +1,4 @@
 
-
 // Or Monoid[T].
 trait Accumulate[T] {
   def empty: T
@@ -17,11 +16,11 @@ object Endo {
 
   def id[A](a: A) = a
 
-/*
-  def frobnicate[T](a: Endo[List[T]])(implicit acc: Accumulate[Endo[List[T]]]) = a match {
-    case Endo(f) => f(acc.empty)
+  def frobnicate[T](a: Endo[T], start: T): T = {
+    a match {
+      case Endo(f) => f(start)
+    }
   }
-*/
 
   implicit def endoAccumulate[T]: Accumulate[Endo[T]] = new Accumulate[Endo[T]] {
     def empty = Endo(id[T])
@@ -95,6 +94,9 @@ object WriterDemo {
   }
 }
 
+/**
+ * Mix my Endo "implementation" above with Tony's WriteDemo.
+ */
 object EndoWriterDemo {
 
   object WriterLog {
@@ -124,12 +126,6 @@ object EndoWriterDemo {
 
   import Writer._
 
-  def frobnicate(a: Endo[List[String]]): List[String] = {
-    a match {
-      case Endo(f) => f(List.empty)
-    }
-  }
-
   def main(args: Array[String]) = {
     val k = args(0).toInt
 
@@ -144,8 +140,7 @@ object EndoWriterDemo {
     println("Result: " + result.a)
     println("LOG")
     println("===")
-    frobnicate(result.log) foreach println
-    //result.log foreach println
+    frobnicate(result.log, List.empty) foreach println
   }
 }
 
