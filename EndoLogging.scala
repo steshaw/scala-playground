@@ -1,8 +1,7 @@
 
-// Or Monoid[T].
-trait Accumulate[T] {
+trait Monoid[T] {
   def empty: T
-  def accum(t1: T, t2: T): T // Sometimes 'append'.
+  def append(t1: T, t2: T): T
 }
 
 case class Endo[A](a: A => A)
@@ -22,10 +21,10 @@ object Endo {
     }
   }
 
-  implicit def endoAccumulate[T]: Accumulate[Endo[T]] = new Accumulate[Endo[T]] {
+  implicit def endoAccumulate[T]: Monoid[Endo[T]] = new Monoid[Endo[T]] {
     def empty = Endo(id[T])
 
-    def accum(t1: Endo[T], t2: Endo[T]) = Endo(t1.a compose t2.a)
+    def append(t1: Endo[T], t2: Endo[T]) = Endo(t1.a compose t2.a)
   }
 }
 
@@ -108,18 +107,18 @@ object EndoWriterDemo {
   case class Writer[A](log: LOG, a: A) {
     def map[B](f: A => B): Writer[B] = Writer(log, f(a))
 
-    def flatMap[B](f: A => Writer[B])(implicit acc: Accumulate[LOG]): Writer[B] = {
+    def flatMap[B](f: A => Writer[B])(implicit acc: Monoid[LOG]): Writer[B] = {
       val Writer(log2, b) = f(a)
-      Writer(acc.accum(log, log2), b)
+      Writer(acc.append(log, log2), b)
     }
   }
 
   import Endo._
 
   object Writer {
-    implicit def LogUtilities[A](a: A)(implicit acc: Accumulate[LOG]) = new {
+    implicit def LogUtilities[A](a: A)(implicit acc: Monoid[LOG]) = new {
       def nolog = Writer(acc.empty, a)
-      def withLog(message: String) = Writer(acc.accum(log(message), acc.empty), a)
+      def withLog(message: String) = Writer(acc.append(log(message), acc.empty), a)
       def withValueLog(mkMessage: A => String) = withLog(mkMessage(a))
     }
   }
@@ -154,4 +153,4 @@ object Demos {
   }
 }
 
-Demos.main(Array())
+//Demos.main(Array())
