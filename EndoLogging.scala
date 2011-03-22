@@ -1,8 +1,43 @@
 
+object UnusedDefinitions {
+    type Logging[LOG, A] = (LOG, A)
+}
+
 trait Monoid[T] {
   def empty: T
   def append(t1: T, t2: T): T
 }
+
+object Monoid {
+  implicit def instanceMonoid[T] : Monoid[List[T]] = new Monoid[List[T]] {
+    def empty = List.empty
+    def append(t1: List[T], t2: List[T]) = t1 ::: t2
+  }
+}
+
+trait ForeachPrintln[T] {
+  def foreachPrintln(t: T): Unit
+}
+
+object ForeachPrintln {
+  implicit def instanceForeachPrintln[T]: ForeachPrintln[List[T]] = new ForeachPrintln[List[T]] {
+    def foreachPrintln(as: List[T]) {
+      as foreach println
+    }
+  }
+}
+
+trait StringToLog[T] {
+  def stringToLog(s: String): T
+}
+
+object StringToLog {
+  implicit def instanceStringToLog: StringToLog[List[String]] = new StringToLog[List[String]] {
+    def stringToLog(s: String) = List(s)
+  }
+}
+
+//import Monoid._
 
 case class Endo[A](a: A => A)
 
@@ -21,10 +56,46 @@ object Endo {
     }
   }
 
-  implicit def endoAccumulate[T]: Monoid[Endo[T]] = new Monoid[Endo[T]] {
+  implicit def instanceMonoid[T]: Monoid[Endo[T]] = new Monoid[Endo[T]] {
     def empty = Endo(id[T])
-
     def append(t1: Endo[T], t2: Endo[T]) = Endo(t1.a compose t2.a)
+  }
+
+  implicit def instanceForeachPrintln[T]: ForeachPrintln[Endo[List[T]]] = new ForeachPrintln[Endo[List[T]]] {
+    def foreachPrintln(a: Endo[List[T]]) {
+      val list = a match {
+        case Endo(f) => f(List.empty)
+      }
+      list foreach println
+    }
+  }
+
+  implicit def instanceStringToLog: StringToLog[Endo[List[String]]] = new StringToLog[Endo[List[String]]] {
+    def stringToLog(s: String) = Endo.log(s)
+  }
+}
+
+case class Consing[T](as: List[T])
+
+object Consing {
+  implicit def instanceMonoid[T]: Monoid[Consing[T]] = new Monoid[Consing[T]] {
+    def empty = Consing(List.empty)
+    def append(t1: Consing[T], t2: Consing[T]) = {
+      println("append t1="+t1+" t2="+t2)
+      if (t1.as.length == 0) t2
+      else if (t1.as.length == 1) Consing(t1.as.head :: t2.as)
+      else error("oops - was expecting list of length 1 as first argument -- length(as) = " + t1.as.length)
+    }
+  }
+
+  implicit def instanceForeachPrintln[T]: ForeachPrintln[Consing[T]] = new ForeachPrintln[Consing[T]] {
+    def foreachPrintln(as: Consing[T]) {
+      as.as foreach println
+    }
+  }
+
+  implicit def instanceStringToLog: StringToLog[Consing[String]] = new StringToLog[Consing[String]] {
+    def stringToLog(s: String) = Consing(List(s))
   }
 }
 
@@ -61,7 +132,7 @@ object WriterDemo {
 
     def flatMap[B](f: A => Writer[B]): Writer[B] = {
       val Writer(log2, b) = f(a)
-      Writer(log ::: log2 /* accumulate */, b)
+      Writer(log ::: log2, b)
     }
   }
 
@@ -105,7 +176,6 @@ object EndoWriterDemo {
 
   object WriterLog {
     type LOG = Endo[List[String]]
-    type Logging_UNUSED[LOG, A] = (LOG, A)
   }
   import WriterLog._
 
@@ -123,7 +193,7 @@ object EndoWriterDemo {
   object Writer {
     implicit def LogUtilities[A](a: A)(implicit acc: Monoid[LOG]) = new {
       def nolog = Writer(acc.empty, a)
-      def withLog(message: String) = Writer(acc.append(log(message), acc.empty), a)
+      def withLog(message: String) = Writer(log(message), a)
       def withValueLog(mkMessage: A => String) = withLog(mkMessage(a))
     }
   }
@@ -151,13 +221,81 @@ object EndoWriterDemo {
   }
 }
 
+/**
+ * Generalise the WriterDemo to any Monoid.
+ * Show examples with Endo[List[String]] and simply List[String].
+ */
+class MonoidWriterDemo[LOG](
+    implicit val monoid: Monoid[LOG],
+    implicit val fe: ForeachPrintln[LOG],
+    implicit val stringToLog: StringToLog[LOG]
+) {
+
+  case class Writer[A](log: LOG, a: A) {
+    def map[B](f: A => B): Writer[B] = Writer(log, f(a))
+
+    def flatMap[B](f: A => Writer[B])/*(implicit acc: Monoid[LOG])*/: Writer[B] = {
+      val Writer(log2, b) = f(a)
+      Writer(/*acc*/monoid.append(log, log2), b)
+    }
+  }
+
+  import Endo._
+
+  object Writer {
+    implicit def LogUtilities[A](a: A)/*(implicit acc: Monoid[LOG])*/ = new {
+      def nolog = Writer(/*acc*/monoid.empty, a)
+      def withLog(message: String) = Writer(stringToLog.stringToLog(message), a)
+      def withValueLog(mkMessage: A => String) = withLog(mkMessage(a))
+    }
+  }
+
+  import Writer._
+
+  def go(n: Int) {
+    val result: Writer[Boolean] = for {
+      a <- n withValueLog ("starting with " + _)
+      b <- (a + 7) withLog "adding 7"
+      c <- (b * 3).nolog
+      d <- c.toString.reverse.toInt withValueLog ("switcheroo with " + _)
+      e <- (d % 2 == 0) withLog "is even?"
+    } yield e
+    println("Result: " + result.a)
+    println("LOG")
+    println("===")
+    fe.foreachPrintln(result.log)
+  }
+
+  def main(args: Array[String]) {
+    val n = args(0).toInt
+    go(n)
+  }
+}
+
 object Demos {
   def main(args: Array[String]) {
+    println("EndoDemo")
     EndoDemo.main(Array())
+
     println()
+    println("WriterDemo")
     WriterDemo.main(Array("41"))
+
     println()
+    println("EndoWriterDemo")
     EndoWriterDemo.main(Array("41"))
+
+    println()
+    println("MonoidWriterDemo[List[String]]")
+    new MonoidWriterDemo[List[String]].main(Array("41"))
+
+    println()
+    println("MonoidWriterDemo[Consing[String]]")
+    new MonoidWriterDemo[Consing[String]].main(Array("41"))
+
+    println()
+    println("MonoidWriterDemo[Endo[List[String]]]")
+    new MonoidWriterDemo[Endo[List[String]]].main(Array("41"))
   }
 }
 
