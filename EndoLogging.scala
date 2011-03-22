@@ -75,11 +75,11 @@ object WriterDemo {
 
   import Writer._
 
-  def main(args: Array[String]) = {
-    val k = args(0).toInt
+  def frobnicate(a: List[String], ignore: List[String]) = a
 
+  def go(n: Int) {
     val result = for {
-      a <- k withValueLog ("starting with " + _)
+      a <- n withValueLog ("starting with " + _)
       b <- (a + 7) withLog "adding 7"
       c <- (b * 3).nolog
       d <- c.toString.reverse.toInt withValueLog ("switcheroo with " + _)
@@ -89,7 +89,12 @@ object WriterDemo {
     println("Result: " + result.a)
     println("LOG")
     println("===")
-    result.log foreach println
+    frobnicate(result.log, List.empty) foreach println
+  }
+
+  def main(args: Array[String]) = {
+    val k = args(0).toInt
+    go(k)
   }
 }
 
@@ -125,11 +130,9 @@ object EndoWriterDemo {
 
   import Writer._
 
-  def main(args: Array[String]) = {
-    val k = args(0).toInt
-
+  def go(n: Int) {
     val result = for {
-      a <- k withValueLog ("starting with " + _)
+      a <- n withValueLog ("starting with " + _)
       b <- (a + 7) withLog "adding 7"
       c <- (b * 3).nolog
       d <- c.toString.reverse.toInt withValueLog ("switcheroo with " + _)
@@ -140,6 +143,11 @@ object EndoWriterDemo {
     println("LOG")
     println("===")
     frobnicate(result.log, List.empty) foreach println
+  }
+
+  def main(args: Array[String]) = {
+    val n = args(0).toInt
+    go(n)
   }
 }
 
