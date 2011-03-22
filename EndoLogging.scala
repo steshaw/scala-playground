@@ -1,8 +1,7 @@
 
-object Stuff {
+case class Endo[A](a: A => A)
 
-  case class Endo[A](a: A => A)
-
+object Endo {
   def log(message: String): Endo[List[String]] = Endo(as => message::as)
 
   def collapse[A](a: List[Endo[A]]) = a.foldRight(Endo(id[A])) {
@@ -10,16 +9,22 @@ object Stuff {
   }
 
   def id[A](a: A) = a
+}
 
-  val logging = List(log("hi"), log("there"))
+object EndoDemo {
+  def main(args: Array[String]) {
+    import Endo._
 
-  val endoResult: Endo[List[String]] = collapse(logging)
+    val logging = List(log("hi"), log("there"))
 
-  val result: List[String] = endoResult match {
-    case Endo(f) => f(List.empty)
+    val endoResult: Endo[List[String]] = collapse(logging)
+
+    val result: List[String] = endoResult match {
+      case Endo(f) => f(List.empty)
+    }
+
+    result foreach println
   }
-
-  result foreach println
 }
 
 //
