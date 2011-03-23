@@ -3,15 +3,37 @@ object UnusedDefinitions {
     type Logging[LOG, A] = (LOG, A)
 }
 
+trait Monad[M[_]] {
+  def unit[A](a: A): M[A]
+  def map[A, B](a: M[A], f: A => B): M[B]
+  def flatMap[A, B](a: M[A], f: A => M[B]): M[B]
+}
+
 trait Monoid[T] {
   def empty: T
   def append(t1: T, t2: T): T
 }
 
-object Monoid {
+object ListX {
   implicit def instanceMonoid[T] : Monoid[List[T]] = new Monoid[List[T]] {
     def empty = List.empty
     def append(t1: List[T], t2: List[T]) = t1 ::: t2
+  }
+
+  implicit def instanceForeachPrintln[T]: ForeachPrintln[List[T]] = new ForeachPrintln[List[T]] {
+    def foreachPrintln(as: List[T]) {
+      as foreach println
+    }
+  }
+
+  implicit def instanceStringToLog: StringToLog[List[String]] = new StringToLog[List[String]] {
+    def stringToLog(s: String) = List(s)
+  }
+
+  implicit def instanceMonad: Monad[List] = new Monad[List] {
+    def unit[A](a: A) = List(a)
+    def map[A, B](as: List[A], f: A => B) = as.map(f)
+    def flatMap[A, B](as: List[A], f: A => List[B]) = as.flatMap(f)
   }
 }
 
@@ -19,22 +41,8 @@ trait ForeachPrintln[T] {
   def foreachPrintln(t: T): Unit
 }
 
-object ForeachPrintln {
-  implicit def instanceForeachPrintln[T]: ForeachPrintln[List[T]] = new ForeachPrintln[List[T]] {
-    def foreachPrintln(as: List[T]) {
-      as foreach println
-    }
-  }
-}
-
 trait StringToLog[T] {
   def stringToLog(s: String): T
-}
-
-object StringToLog {
-  implicit def instanceStringToLog: StringToLog[List[String]] = new StringToLog[List[String]] {
-    def stringToLog(s: String) = List(s)
-  }
 }
 
 //import Monoid._
@@ -73,6 +81,12 @@ object Endo {
   implicit def instanceStringToLog: StringToLog[Endo[List[String]]] = new StringToLog[Endo[List[String]]] {
     def stringToLog(s: String) = Endo.log(s)
   }
+
+  implicit def instanceMonad: Monad[Endo] = new Monad[Endo] {
+    def unit[A](a: A) = Endo(id)
+    def map[A, B](as: Endo[A], f: A => B) = flatMap(as, unit[A])
+    def flatMap[A, B](as: Endo[A], f: A => Endo[B]) = error("todo instanceMonad.flatMap")
+  }
 }
 
 case class Consing[T](as: List[T])
@@ -96,6 +110,12 @@ object Consing {
 
   implicit def instanceStringToLog: StringToLog[Consing[String]] = new StringToLog[Consing[String]] {
     def stringToLog(s: String) = Consing(List(s))
+  }
+
+  implicit def instanceMonad: Monad[Consing] = new Monad[Consing] {
+    def unit[A](a: A) = Consing(List(a))
+    def map[A, B](as: Consing[A], f: A => B) = Consing(as.as.map(f))
+    def flatMap[A, B](as: Consing[A], f: A => Consing[B]) = Consing(as.as.flatMap(a => f(a).as))
   }
 }
 
@@ -225,11 +245,14 @@ object EndoWriterDemo {
  * Generalise the WriterDemo to any Monoid.
  * Show examples with Endo[List[String]] and simply List[String].
  */
-class MonoidWriterDemo[LOG](
-    implicit val monoid: Monoid[LOG],
-    implicit val fe: ForeachPrintln[LOG],
-    implicit val stringToLog: StringToLog[LOG]
+class MonoidWriterDemo[M[_], T](
+    implicit val monoid: Monoid[M[T]],
+    implicit val fe: ForeachPrintln[M[T]],
+    implicit val stringToLog: StringToLog[M[T]],
+    implicit val monad: Monad[M]
 ) {
+
+  type LOG = M[T]
 
   case class Writer[A](log: LOG, a: A) {
     def map[B](f: A => B): Writer[B] = Writer(log, f(a))
@@ -273,6 +296,10 @@ class MonoidWriterDemo[LOG](
 }
 
 object Demos {
+  def scope(block: =>Unit) {
+    block
+  }
+
   def main(args: Array[String]) {
     println("EndoDemo")
     EndoDemo.main(Array())
@@ -287,15 +314,18 @@ object Demos {
 
     println()
     println("MonoidWriterDemo[List[String]]")
-    new MonoidWriterDemo[List[String]].main(Array("41"))
+    scope {
+      import ListX._
+      new MonoidWriterDemo[List, String].main(Array("41"))
+    }
 
     println()
     println("MonoidWriterDemo[Consing[String]]")
-    new MonoidWriterDemo[Consing[String]].main(Array("41"))
+    new MonoidWriterDemo[Consing, String].main(Array("41"))
 
     println()
     println("MonoidWriterDemo[Endo[List[String]]]")
-    new MonoidWriterDemo[Endo[List[String]]].main(Array("41"))
+    new MonoidWriterDemo[Endo, List[String]].main(Array("41"))
   }
 }
 
