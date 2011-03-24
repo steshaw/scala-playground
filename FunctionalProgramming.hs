@@ -6,46 +6,47 @@ import Data.List (foldl')
 import System.CPUTime (getCPUTime)
 import Text.Printf (printf)
 
+timeStamp :: IO Integer
+timeStamp = getCPUTime
+
+(|>) :: a -> (a -> b) -> b
 (|>) = flip ($)
 
-thing = [1..1000000]
+computation :: Integer
+computation = [1..1000000]
     |> map (* 2)
     |> filter (> 100000)
     |> foldl' (+) 0
 
---  
+--
 -- See http://www.haskell.org/haskellwiki/Timing_computations
 --
+timeOnce :: IO a -> IO a
 timeOnce f = do
-  start <- getCPUTime
+  start <- timeStamp
   result <- f
-  end <- getCPUTime
-  let diff = (fromIntegral (end - start)) / (10^12)
-  printf "Computation time: %0.3f sec\n" (diff :: Double)
+  end <- timeStamp
+  let diff = (fromIntegral (end - start)) / (10^9)
+  _ <- printf "Computation time: %0.3fms\n" (diff :: Double)
   return result
 
-main = do
-  a <- timeOnce $ thing `seq` return ()
-  print a
 {-
-  def timeStamp = System.currentTimeMillis
-
-  def timeOnce(f: => Unit) = {
-    val start = timeStamp
-    f
-    timeStamp - start
-  }
-
-  implicit def implicitTimes(n: Int) = new {
-    def times(f: => Unit) = (1 to n).foreach { ignore =>
-      f
-    }
-  }
-
+  Hmmm, in Haskell, I don't think there's a way to repeat this computation many times to average
+  the running times...
+-}
+{-
   def main(args: Array[String]) {
     10.times {
-      println(timeOnce(thing).toFloat / 1000)
+      println(timeOnce(computation).toFloat / 1000)
     }
   }
 }
 -}
+
+inIO :: a -> IO a
+inIO value = value `seq` return value
+
+main :: IO ()
+main = do
+  a <- timeOnce $ inIO computation
+  putStrLn $ "result => " ++ (show a)
