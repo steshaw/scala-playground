@@ -3,17 +3,25 @@
 //
 object FunctionalProgramming {
 
-  def thing = (1 to 1000000)
+  def computation1() = (1 to 1000000)
     .map(_ * 2)
     .filter(_ > 100000)
     .reduceLeft(_ + _)
 
-  def timeStamp = System.currentTimeMillis
+  def computation2() = (1 to 1000000)
+    .view
+    .map(_ * 2)
+    .filter(_ > 100000)
+    .reduceLeft(_ + _)
 
-  def timeOnce(f: => Unit) = {
+  def timeStamp = System.nanoTime
+
+  def timeOnce[A](f: => A) = {
     val start = timeStamp
-    f
-    timeStamp - start
+    val result = f
+    val duration = timeStamp - start
+    println("Computation time: " + (duration / 1e6) + "ms")
+    result
   }
 
   implicit def implicitTimes(n: Int) = new {
@@ -23,12 +31,11 @@ object FunctionalProgramming {
   }
 
   def main(args: Array[String]) {
-    if (true) {
-      println(timeOnce(thing))
-    } else {
-      10.times {
-        println(timeOnce(thing).toFloat / 1000)
+    List(
+      ("computation1", () => computation1),
+      ("computation2", () => computation2)
+      ) foreach { case (name, c) =>
+        println(name); 10.times {timeOnce(c())}
       }
-    }
   }
 }
