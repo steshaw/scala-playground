@@ -1,18 +1,18 @@
 
 SCALAC := fsc
 
-GHC := ghc --make -Wall -O99 -fno-warn-type-defaults -fforce-recomp
+GHC := ghc --make -Wall -O99 -fno-warn-type-defaults -fforce-recomp -rtsopts
 
 all: run
 
 .PHONY:
 compile: classes/FunctionalProgramming.class
 
-classes/FunctionalProgramming.class: FunctionalProgramming.scala
+classes/FunctionalProgramming.class: Makefile FunctionalProgramming.scala
 	$(SCALAC) -d classes/ FunctionalProgramming.scala
 
-FunctionalProgramming: FunctionalProgramming.hs
-	$(GHC) $< #FunctionalProgramming.hs
+FunctionalProgramming: Makefile FunctionalProgramming.hs
+	$(GHC) FunctionalProgramming.hs
 
 .PHONY:
 run: classes/FunctionalProgramming.class FunctionalProgramming
