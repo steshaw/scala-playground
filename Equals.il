@@ -97,14 +97,14 @@
 	IL_0019:  call void class Equals::println(object)
 	IL_001e:  ldloc.1 
 	IL_001f:  ldloc.0 
-	IL_0020:  callvirt instance bool class Equals::eqls(object)
+	IL_0020:  call instance bool class Equals::eqls(object)
 	IL_0025:  box [mscorlib]System.Boolean
 	IL_002a:  call void class Equals::println(object)
 	IL_002f:  ldstr "eN eqls e1"
 	IL_0034:  call void class Equals::println(object)
 	IL_0039:  ldloc.0 
 	IL_003a:  ldloc.1 
-	IL_003b:  callvirt instance bool class Equals::eqls(object)
+	IL_003b:  call instance bool class Equals::eqls(object)
 	IL_0040:  box [mscorlib]System.Boolean
 	IL_0045:  call void class Equals::println(object)
 	IL_004a:  ret 
