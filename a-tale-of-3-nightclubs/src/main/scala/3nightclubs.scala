@@ -1,4 +1,6 @@
 //
+// Chris Marshall's "A tale of 3 nightclubs"
+//
 // From https://gist.github.com/970717
 //
 
