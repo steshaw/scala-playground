@@ -4,19 +4,20 @@ exec scala "$0" "$@"
 
 import scala.io.Source
 
-def widthOfLength(s: String) = s.length.toString.length
-
 if (args.length > 0) {
-  val lines = Source.fromFile(args(0)).getLines.toList
-  val longestLine = lines.reduceLeft((a, b) => if (a.length > b.length) a else b)
-  val maxWidth = widthOfLength(longestLine)
-  
+  val lines = Source.fromFile(args(0)).getLines.toSeq
+  val longestLength = lines.view.map(_.length).foldLeft(0)(scala.math.max)
+  val maxWidth = longestLength.toString.length
+
+  def widthOfLength(s: String) = s.length.toString.length
+
   for (line <- lines) {
     val numSpaces = maxWidth - widthOfLength(line)
     val padding = " " * numSpaces
-    print(padding + line.length + " | " + line + "\n")
+    printf("%s%d | %s\n", padding, line.length, line)
   }
-} else
+} else {
   Console.err.println("usage: format-lines <file>")
+}
 
 // vim: filetype=scala
