@@ -14,7 +14,7 @@ val fi = findFirstIndexRecursive(args)
 
 // Can we make this functional variant efficient? i.e. sufficiently lazy.
 def findFirstIndexFunctional(args: Seq[String]): Int =
-  args.zip(0 to 10000).
+  args.zip(0 until Int.MaxValue).
     filter (t => t match {case (file, index) => !file.startsWith("-") && file.endsWith(".scala")}).
     map (_._2).
     head
