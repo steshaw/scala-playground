@@ -70,3 +70,20 @@ trait Filtering extends IntQueue {
 
 // However, we cannot inherit Doubling twice :(.
 //val queue = new BasicIntQueue with Doubling with Doubling with Filtering
+
+// ... and trying to include "Doubling" twice like the following doesn't work either :).
+{
+  trait Doubling2 extends Doubling
+
+  println("BasicIntQueue Incrementing with Doubling with Doubling2 with Filtering")
+  implicit val queue = new BasicIntQueue with Doubling with Doubling2 with Filtering
+
+  for (i <- -10 to 10) queue.put(i)
+
+  def printGet(implicit queue: IntQueue) = println(queue.get())
+
+  for (i <- 0 to 10) printGet
+  println
+
+  assert(queue.buf.isEmpty)
+}
