@@ -60,10 +60,7 @@ trait Filtering extends IntQueue {
 
   for (i <- -10 to 10) queue.put(i)
 
-  def printGet(implicit queue: IntQueue) {
-    val result = queue.get
-    println(result)
-  }
+  def printGet(implicit queue: IntQueue) = println(queue.get())
 
   for (i <- 0 to 10) printGet
   println
