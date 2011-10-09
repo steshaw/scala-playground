@@ -12,7 +12,7 @@ case class BinaryOp(operator: String, left: Expr, right: Expr) extends Expr
 class ExprFormatter {
 
   // Contains operators in groups of increasing precedence.
-  private val opGroups = Array(
+  /*private*/ val opGroups = Array(
     Set("|", "||"),
     Set("&", "&&"),
     Set("^"),
@@ -23,14 +23,7 @@ class ExprFormatter {
   )
 
   // A mapping from operators to their precedence.
-  private val precedence = {
-    val assocs = 
-      for {
-        i <- 0 until opGroups.length
-        op <- opGroups(i)
-      } yield op -> i
-    Map() ++ assocs
-  }
+  private val precedence = Map(opGroups.zipWithIndex flatMap {case (ops, prec) => ops map (_ -> prec)} :_*)
 
   private val unaryPrecedence = opGroups.length
   private val fractionPrecedence = -1
