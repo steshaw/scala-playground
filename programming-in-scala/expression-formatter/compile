@@ -1,1 +1,1 @@
-scalac -deprecation -classpath ../layout expr.scala express.scala 
+fsc -deprecation -classpath ../layout expr.scala express.scala 
