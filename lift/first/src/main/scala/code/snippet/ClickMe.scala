@@ -7,13 +7,7 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http._
 import net.liftweb.http.js.JsCmds._
 
-//class RequestScope[T](t: T) extends RequestVar[T](t)
-
 class ClickMe {
-/*
-  val pos = new RequestScope(0)
-  val count = new RequestScope(0)
-*/
   object pos extends RequestVar(0)
   object count extends RequestVar(0)
 
