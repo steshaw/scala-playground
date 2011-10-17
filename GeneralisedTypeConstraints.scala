@@ -13,5 +13,5 @@ case class Foo[A](a:A) { // 'A' can be substituted with any type
 
   // stringLengthView can be used if A is implicitly convertible to a CharSequence, 
   // such as Foo[Int], given int2string above
-  def stringLengthView(implicit evidence: A <%< String) = a.length
+  def stringLengthView(implicit evidence: A => String) = a.length
 }
