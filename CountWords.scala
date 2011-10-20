@@ -5,7 +5,7 @@ def countWords(text: String) = {
   for (word <- text.split("[ ,!.]+")) {
     val lowerWord = word.toLowerCase
     val oldCount = counts.getOrElse(lowerWord, 0)
-    counts += (lowerWord -> (oldCount + 1))
+    counts(lowerWord) = oldCount + 1
   }
   counts
 }
