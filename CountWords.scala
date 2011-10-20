@@ -1,13 +1,11 @@
 import scala.collection.mutable
 
 def countWords(text: String) = {
-  val counts = mutable.Map.empty[String, Int]
-  for (rawWord <- text.split("[ ,!.]+")) {
-    val word = rawWord.toLowerCase
-    val oldCount =
-      if (counts.contains(word)) counts(word)
-      else 0
-    counts += (word -> (oldCount + 1))
+  val counts = mutable.Map[String, Int]()
+  for (word <- text.split("[ ,!.]+")) {
+    val lowerWord = word.toLowerCase
+    val oldCount = counts.getOrElse(lowerWord, 0)
+    counts += (lowerWord -> (oldCount + 1))
   }
   counts
 }
