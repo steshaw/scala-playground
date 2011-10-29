@@ -6,10 +6,9 @@ sealed abstract class Case
 case object AllUpperCase extends Case
 case object NotAllUpperCase extends Case
 
-def e1 = "HELLO"
-def e2(s: String) = s.toUpperCase
-def e3(s1: String, s2: String) = s1 == s2
-def e4(b: Boolean) = if (b) AllUpperCase else NotAllUpperCase
+def e1 = 12
+def e2(n: Int) = n - 10
+def e3(n: Int, m: Int) = n * m
 
 //
 // Original 'program'.
@@ -18,7 +17,7 @@ def e4(b: Boolean) = if (b) AllUpperCase else NotAllUpperCase
   var a = e1
   var b = e2(a)
   var c = e3(a, b)
-  var d = e4(c)
+  var d = e2(c)
   println(d)
 }
 
@@ -35,11 +34,12 @@ object Id {
 // Original 'program' wrapped in a for expression.
 //
 {
-  val result = for {
-    a <- Id(e1)
-    b <- Id(e2(a))
-    c <- Id(e3(a, b))
-    d <- Id(e4(c))
+  import Id._
+  val Id(result) = for {
+    a <- e1
+    b <- e2(a)
+    c <- e3(a, b)
+    d <- e2(c)
   } yield d
   println(result)
 }
@@ -49,9 +49,10 @@ object Id {
 // Trying flatMap to see if I can avoid the explicit Id calls (but no).
 //
 {
-  var d = Id(e1) flatMap(a =>
-    Id(e2(a)) flatMap(b =>
-    Id(e3(a, b)) flatMap(c =>
-    e4(c))))
+  import Id._
+  var Id(d) = e1 flatMap(a =>
+    e2(a) flatMap(b =>
+    e3(a, b) flatMap(c =>
+    e2(c))))
   println(d)
 }
