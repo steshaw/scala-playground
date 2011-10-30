@@ -1,6 +1,19 @@
 //
 // Adapted from https://groups.google.com/d/msg/scala-debate/VA4-qUxiN0I/9uGkbtgYToUJ
 //
+// Tony Morris motivates replacing dependency injection with
+//
+//  1. "threading" read only value through your computation. i.e reader monad
+//  2. "threading" a modifiable value through your computation. i.e. state monad
+//
+// It seems to me that DI is mostly used for (1). i.e. your configuration is static and read-only (at least once
+// the program is up and running - like slurped it's Spring beans config file etc). However, some of the 
+// injected "services" will be mutable so perhaps in a FP sense, that is more like (2).
+//
+// I still wonder if there's some other utility gained from DI frameworks that are not supplied by the reader
+// and or state monads. Something to think about is the AOP that is often associated with injected services.
+// For instance, @Transaction method etc. There are, though, other means to more-or-less implement those using FP.
+//
 
 def e1 = 12
 def e2(n: Int) = n - 10
@@ -112,11 +125,88 @@ case class Context(val appName: String, val hostName: String, val port: Int)
   val e1_ = lift0(e1)
   val e2_ = lift1(e2)
   val e3_ = lift2(e3)
-  val result = for {
-    a <- e1_
-    b <- e2_(a)
-    c <- e3_(a, b)
-    d <- e2_(c)
-  } yield d
-  println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+
+  {
+    val result = for {
+      a <- e1_
+      b <- e2_(a)
+      c <- e3_(a, b)
+      d <- e2_(c)
+    } yield d
+    println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+  }
+
+  {
+    // Here I use a function that accesses the context.
+    def port(cx: Context) = cx.port
+
+    // Still have to 'lift' it.
+    def lift[A](f: Context => A) = WriteWithContext(cx => (f(cx), cx))
+
+    val port_ = lift(port)
+
+    val result = for {
+      a <- port_
+      b <- e2_(a)
+      c <- e3_(a, b)
+      d <- e2_(c)
+    } yield d
+    println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+
+    // In this case, since hostName isn't used in the computation, it doesn't matter where it is "trashed".
+    def trashHostName(cx: Context) = cx.copy(hostName = "oops")
+    val trashHostName_ = WriteWithContext(cx => (Unit, trashHostName(cx)))
+
+    {
+      val result = for {
+        _ <- trashHostName_
+        a <- port_
+        b <- e2_(a)
+        c <- e3_(a, b)
+        d <- e2_(c)
+      } yield d
+      println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+    }
+
+    {
+      val result = for {
+        a <- port_
+        _ <- trashHostName_
+        b <- e2_(a)
+        c <- e3_(a, b)
+        d <- e2_(c)
+      } yield d
+      println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+    }
+    {
+      val result = for {
+        a <- port_
+        b <- e2_(a)
+        _ <- trashHostName_
+        c <- e3_(a, b)
+        d <- e2_(c)
+      } yield d
+      println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+    }
+    {
+      val result = for {
+        a <- port_
+        b <- e2_(a)
+        c <- e3_(a, b)
+        _ <- trashHostName_
+        d <- e2_(c)
+      } yield d
+      println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+    }
+    {
+      val result = for {
+        a <- port_
+        b <- e2_(a)
+        c <- e3_(a, b)
+        d <- e2_(c)
+        _ <- trashHostName_
+      } yield d
+      println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+    }
+  }
 }
