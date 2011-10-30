@@ -76,4 +76,22 @@ object Id {
     d <- e2_(c)
   } yield d
   println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+
+  {
+    // Here I use a function that accesses the context.
+    def port(cx: Context) = cx.port
+
+    // Still have to 'lift' it. Just wrap the fn in this case.
+    def lift[A](f: Context => A) = ComputedWithContext(f)
+
+    val port_ = lift(port)
+
+    val result = for {
+      a <- port_
+      b <- e2_(a)
+      c <- e3_(a, b)
+      d <- e2_(c)
+    } yield d
+    println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
+  }
 }
