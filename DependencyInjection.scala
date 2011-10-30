@@ -2,10 +2,6 @@
 // Adapted from https://groups.google.com/d/msg/scala-debate/VA4-qUxiN0I/9uGkbtgYToUJ
 //
 
-sealed abstract class Case
-case object AllUpperCase extends Case
-case object NotAllUpperCase extends Case
-
 def e1 = 12
 def e2(n: Int) = n - 10
 def e3(n: Int, m: Int) = n * m
