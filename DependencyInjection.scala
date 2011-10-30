@@ -53,9 +53,9 @@ object Id {
   println(d)
 }
 
-{
-  case class Context(val appName: String, val hostName: String, val port: Int)
+case class Context(val appName: String, val hostName: String, val port: Int)
 
+{
   case class ComputedWithContext[A](val cx: Context => A) {
     def map[B](f: A => B): ComputedWithContext[B] = ComputedWithContext(f compose cx)
     def flatMap[B](f: A => ComputedWithContext[B]): ComputedWithContext[B] = ComputedWithContext(c => f(cx(c)).cx(c))
@@ -94,4 +94,29 @@ object Id {
     } yield d
     println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
   }
+}
+
+{
+  case class WriteWithContext[A](cx: Context => (A, Context)) {
+    def map[B](f: A => B): WriteWithContext[B] = WriteWithContext(c => {val (a, cc) = cx(c); (f(a), cc)})
+    def flatMap[B](f: A => WriteWithContext[B]): WriteWithContext[B] = WriteWithContext(c => {
+      val (a, cc) = cx(c)
+      f(a) cx cc
+    })
+  }
+
+  def lift0[A, B](a: A) = WriteWithContext((cx) => (a, cx))
+  def lift1[A, B](f: A => B) = (a: A) => WriteWithContext((cx) => (f(a), cx))
+  def lift2[A, B, C](f: (A, B) => C) = (a: A, b: B) => WriteWithContext((cx) => (f(a, b), cx))
+
+  val e1_ = lift0(e1)
+  val e2_ = lift1(e2)
+  val e3_ = lift2(e3)
+  val result = for {
+    a <- e1_
+    b <- e2_(a)
+    c <- e3_(a, b)
+    d <- e2_(c)
+  } yield d
+  println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
 }
