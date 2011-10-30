@@ -52,3 +52,13 @@ object Id {
     e2(c))))
   println(d)
 }
+
+{
+  case class Context(val appName: String, val hostName: String, val port: Int)
+
+  case class ComputedWithContext[A](cx: Context => A) {
+    def map[B](f: A => B) = ComputedWithContext(f compose cx)
+    def flatMap[B](f: A => ComputedWithContext[B]) = ComputedWithContext(c => f(cx(c)) cx c)
+    //def flatMap[B](f: A => ComputedWithContext[B]) = ComputedWithContext(c => f(cx(c)))
+  }
+}
