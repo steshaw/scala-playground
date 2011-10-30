@@ -56,9 +56,24 @@ object Id {
 {
   case class Context(val appName: String, val hostName: String, val port: Int)
 
-  case class ComputedWithContext[A](cx: Context => A) {
-    def map[B](f: A => B) = ComputedWithContext(f compose cx)
-    def flatMap[B](f: A => ComputedWithContext[B]) = ComputedWithContext(c => f(cx(c)) cx c)
-    //def flatMap[B](f: A => ComputedWithContext[B]) = ComputedWithContext(c => f(cx(c)))
+  case class ComputedWithContext[A](val cx: Context => A) {
+    def map[B](f: A => B): ComputedWithContext[B] = ComputedWithContext(f compose cx)
+    def flatMap[B](f: A => ComputedWithContext[B]): ComputedWithContext[B] = ComputedWithContext(c => f(cx(c)).cx(c))
   }
+
+  def lift0[A, B](a: A) = ComputedWithContext((cx) => a)
+  def lift1[A, B](f: A => B) = (a: A) => ComputedWithContext((cx) => f(a))
+  def lift2[A, B, C](f: (A, B) => C) = (a: A, b: B) => ComputedWithContext((cx) => f(a, b))
+
+  val e1_ = lift0(e1)
+  val e2_ = lift1(e2)
+  val e3_ = lift2(e3)
+
+  val result = for {
+    a <- e1_
+    b <- e2_(a)
+    c <- e3_(a, b)
+    d <- e2_(c)
+  } yield d
+  println(result.cx(Context(appName = "di", hostName="localhost", port = 5000)))
 }
