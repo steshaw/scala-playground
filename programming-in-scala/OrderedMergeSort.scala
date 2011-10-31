@@ -1,4 +1,4 @@
-def orderedMergeSort[T <: Ordered[T]](xs: List[T]): List[T] = {
+def orderedMergeSort[T <% Ordered[T]](xs: List[T]): List[T] = {
   def merge(xs: List[T], ys: List[T]): List[T] =
     (xs, ys) match {
       case (Nil, _) => ys
@@ -37,8 +37,7 @@ val people = List(
 
 println(orderedMergeSort(people))
 
-// Following does not compile.
-/*
+// The following required the use of view-bounds (<%) instead of upper-bounds (<:) above.
 println(orderedMergeSort(List()))
 println(orderedMergeSort(List(1)))
 println(orderedMergeSort(List(2, 1)))
@@ -46,4 +45,3 @@ println(orderedMergeSort(List(1, 2)))
 println(orderedMergeSort(List(1, 2, 3)))
 println(orderedMergeSort(List(1, 3, 2)))
 println(orderedMergeSort(List(1, 3, 2, 1, 2)))
-*/
