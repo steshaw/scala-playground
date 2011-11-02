@@ -3,15 +3,11 @@
 //
 
 class Robot(var xPosition: Int, var yPosition: Int, var direction: Direction) {
-  def turnRight(): Unit = {
-    direction = direction.rightDirection;
+  def turnRight() {
+    direction = direction.rightDirection
   }
 
-  //other methods omitted
-
-  override def toString(): String = {
-    "%d %d %s".format(xPosition, yPosition, direction.abbreviation)
-  }
+  override def toString(): String = "%d %d %s".format(xPosition, yPosition, direction.abbreviation)
 }
 
 sealed abstract class Direction(val abbreviation: Char, val leftDirection: Direction, val rightDirection: Direction)
