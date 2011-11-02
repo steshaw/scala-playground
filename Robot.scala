@@ -14,7 +14,7 @@ class Robot(var xPosition: Int, var yPosition: Int, var direction: Direction) {
   }
 }
 
-sealed abstract case class Direction(abbreviation: Char, val leftDirection: Direction, val rightDirection: Direction)
+sealed abstract class Direction(val abbreviation: Char, val leftDirection: Direction, val rightDirection: Direction)
 case object North extends Direction('N', West, East)
 case object West extends Direction('W', South, North)
 case object East extends Direction('E', North, South)
