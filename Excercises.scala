@@ -27,7 +27,7 @@ def map[A, B](f: A => B)(xs: List[A]) = xs.foldRight(Nil: List[B])((n, acc) => f
 def flatMap[A, B](f: A => List[B])(xs: List[A]) = xs.foldRight(Nil: List[B])((n, acc) => f(n) ::: acc)
 
 {
-  def repeat3(n: Int) = List(n, n, n)
+  def repeat3(n: Int) = List.fill(3)(n)
 
   {
     val r = flatMap(repeat3)(List(1,2,3))
