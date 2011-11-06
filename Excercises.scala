@@ -26,10 +26,7 @@ object Excercises extends App {
   //
   def map[A, B](f: A => B)(xs: List[A]) = xs.foldRight(Nil: List[B])((n, acc) => f(n) :: acc)
 
-  {
-    val r = map(((_:Int)+1))(List(1,2,3))
-    println(r)
-  }
+  println(map(((_:Int)+1))(List(1,2,3)))
 
   {
     val r = try {
@@ -62,10 +59,8 @@ object Excercises extends App {
   {
     def repeat3(n: Int) = List.fill(3)(n)
 
-    {
-      val r = flatMap(repeat3)(List(1,2,3))
-      println(r)
-    }
+    println(flatMap(repeat3)(List(1,2,3)))
+
     {
       val r = try {
         flatMap(repeat3)((1 to 50000).toList).toString
@@ -88,10 +83,8 @@ object Excercises extends App {
   //
   def concat[A](xs: List[A], ys: List[A]): List[A] = xs.foldRight(ys)((n, acc) => n :: acc)
 
-  {
-    val r = concat(List(1,2,3), List(4,5,6))
-    println(r)
-  }
+  println(concat(List(1,2,3), List(4,5,6)))
+
   {
     val r = try {
       concat((1 to 50000).toList, List(4,5,6)).toString
@@ -109,10 +102,8 @@ object Excercises extends App {
     case x :: xs => x :: concatr(xs, ys)
   }
 
-  {
-    val r = concatr(List(1,2,3), List(4,5,6))
-    println(r)
-  }
+  println(concatr(List(1,2,3), List(4,5,6)))
+
   {
     val r = try {
       concatr((1 to 7000).toList, List(4,5,6)).toString
@@ -128,16 +119,6 @@ object Excercises extends App {
   def max[T <% Ordered[T]](a: T, b: T) = if (a > b) a else b
   def maxOf[T <% Ordered[T]](xs: List[T]) = xs.reduceLeft((acc, n) => max(n, acc))
 
-  {
-    val r = maxOf(List(6,3,1,9,8))
-    println(r)
-  }
-  {
-    val r = try {
-      maxOf(scala.util.Random.shuffle((1 to 7000).toList)).toString
-    } catch {
-      case e: StackOverflowError => "blew the stack!"
-    }
-    println(r)
-  }
+  println(maxOf(List(6,3,1,9,8)))
+  println(maxOf(scala.util.Random.shuffle((1 to 70000).toList)).toString)
 }
