@@ -1,4 +1,4 @@
-def raf(s: String) = (s :\ 0)(_ - 'a' + 1 + _ * 26)
+def raf(s: String) = (0 /: s)((acc, n) => n - 'a' + 1 + acc * 26)
 
 val prop_1 = raf("a") == 1
 val prop_2 = raf("b") == 2
