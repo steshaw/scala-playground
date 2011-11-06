@@ -42,6 +42,30 @@ def flatMap[A, B](f: A => List[B])(xs: List[A]) = xs.foldRight(Nil: List[B])((n,
 
     println(r)
   }
+
+  def benchmark(name: String, times: Int, a: => Unit) {
+    import scala.compat.Platform
+    try {
+      printf("benchmark '%s':", name)
+      for (i <- 1 to times) {
+        Platform.collectGarbage
+        val start = Platform.currentTime
+        a
+        val duration = Platform.currentTime - start
+        Platform.collectGarbage
+        printf(" %dms", duration)
+      }
+      println()
+    } catch {
+      case t: Throwable => printf("\n!!! benchmark '%s' failed with exception %s\n", name, t)
+    }
+  }
+
+  // Compare our flatMap with built-in flatMap.
+  def repeatMuch(n: Int) = List.fill(10000)(n)
+  val bigList = (1 to 500).toList
+  benchmark("our flatMap", 10, flatMap(repeatMuch)(bigList))
+  benchmark("built-in flatMap", 10, bigList.flatMap(repeatMuch))
 }
 
 //
@@ -55,7 +79,7 @@ def concat[A](xs: List[A], ys: List[A]): List[A] = xs.foldRight(ys)((n, acc) => 
 }
 {
   val r = try {
-    concat((1 to 25000).toList, List(4,5,6)).toString
+    concat((1 to 50000).toList, List(4,5,6)).toString
   } catch {
     case e: StackOverflowError => "blew the stack!"
   }
