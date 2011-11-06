@@ -22,8 +22,27 @@ def map[A, B](f: A => B)(xs: List[A]) = xs.foldRight(Nil: List[B])((n, acc) => f
 }
 
 //
-// TODO flatMap in terms of foldRight
+// flatMap in terms of foldRight
 //
+def flatMap[A, B](f: A => List[B])(xs: List[A]) = xs.foldRight(Nil: List[B])((n, acc) => f(n) ::: acc)
+
+{
+  def repeat3(n: Int) = List(n, n, n)
+
+  {
+    val r = flatMap(repeat3)(List(1,2,3))
+    println(r)
+  }
+  {
+    val r = try {
+      flatMap(repeat3)((1 to 4500).toList).toString
+    } catch {
+      case _: StackOverflowError => "blew the stack!"
+    }
+
+    println(r)
+  }
+}
 
 //
 // concat in terms of foldRight
@@ -36,7 +55,7 @@ def concat[A](xs: List[A], ys: List[A]): List[A] = xs.foldRight(ys)((n, acc) => 
 }
 {
   val r = try {
-    concat((1 to 4500).toList, List(4,5,6)).toString
+    concat((1 to 25000).toList, List(4,5,6)).toString
   } catch {
     case e: StackOverflowError => "blew the stack!"
   }
@@ -65,19 +84,18 @@ def concatr[A](xs: List[A], ys: List[A]): List[A] = xs match {
 }
 
 //
-// find max Int in list - generalised to T viewable as an Ordered[T].
+// maxOf - find max Int in list - generalised to T viewable as an Ordered[T].
 //
-def max[T <% Ordered[T]](xs: List[T]) = xs match {
-  case Nil => sys.error("cannot take the max of an empty list")
-  case x :: xs => xs.foldLeft(x)((acc, n) => if (n > acc) n else acc)
-}
+def max[T <% Ordered[T]](a: T, b: T) = if (a > b) a else b
+def maxOf[T <% Ordered[T]](xs: List[T]) = xs.reduceLeft((acc, n) => max(n, acc))
+
 {
-  val r = max(List(6,3,1,9,8))
+  val r = maxOf(List(6,3,1,9,8))
   println(r)
 }
 {
   val r = try {
-    max(scala.util.Random.shuffle((1 to 7000).toList)).toString
+    maxOf(scala.util.Random.shuffle((1 to 7000).toList)).toString
   } catch {
     case e: StackOverflowError => "blew the stack!"
   }
