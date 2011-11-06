@@ -2,14 +2,14 @@
 -- "Raf's Problem". See http://blog.tmorris.net/rafs-problem/
 -- 
 
--- Matt Hellige's original broken solution
+-- Matt Hellige's solution
 raf :: String -> Int
-raf = foldr comb 0
+raf = foldl comb 0
   where
-    comb x n = (fromEnum x - start) + (n * 26)
+    comb n x = (fromEnum x - start) + (n * 26)
     start = fromEnum 'a' - 1
 
--- some quickcheck properties
+-- some quickcheck "properties"
 prop_1 = (raf "a") == 1
 prop_2 = (raf "b") == 2
 prop_3 = (raf "z") == 26
