@@ -1,0 +1,8 @@
+Levenshtein.scala is the implementation from 
+  http://blog.tmorris.net/finding-the-levenshtein-distance-in-scala/
+
+It uses Scalaz 2.4 and requires Scala 2.7.7.
+
+Scalaz 2.4 jar is available from
+
+  http://scala-tools.org/repo-releases/com/workingmouse/scalaz/2.4/scalaz-2.4.jar
