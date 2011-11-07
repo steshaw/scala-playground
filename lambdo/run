@@ -1,0 +1,2 @@
+~/.shelly/local/scala-2.7.7.final/bin/scalac -d classes/ -deprecation -unchecked *.scala
+~/.shelly/local/scala-2.7.7.final/bin/scala -cp classes/ Lambdo <foo.ss
