@@ -1,2 +1,9 @@
-~/.shelly/local/scala-2.7.7.final/bin/scalac -d classes/ -deprecation -unchecked *.scala
-~/.shelly/local/scala-2.7.7.final/bin/scala -cp classes/ Lambdo <foo.ss
+#~/.shelly/local/scala-2.7.7.final/bin/scalac -d classes/ -deprecation -unchecked *.scala
+#~/.shelly/local/scala-2.7.7.final/bin/scala -cp classes/ Lambdo <foo.ss
+
+mkdir -p classes &&
+  scalac -d classes/ -deprecation -unchecked *.scala &&
+  for file in *.ss; do
+    echo == $file ==
+    scala -cp classes/ Lambdo <$file
+  done

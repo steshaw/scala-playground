@@ -11,23 +11,25 @@
 
  */
 
+//
+// Steven Shaw:
+//
+//  - Upgraded to Scala 2.9.1 
+//  - minor tidy-ups (mainly code layout nits)
+//  - nicer safeMatch (without the match warnings)
+//
+
 import languages.sexp._
 
 object LambdoSyntax {
   import SExpSyntax._
 
-  // Helpers:
-  private def safeMatch[A,B](x: A)(f: A => B): Option[B] =
-    try {
-      Some(f(x))
-    } catch {
-      case (me: MatchError) => None
-    }
+  private def safeMatch[A, B](x: A)(f: PartialFunction[A, B]): Option[B] = f.lift(x)
 
   // Custom deconstructor pattern matchers for S-Expressions:
+
   object SLambda {
-    // unapply() is the inverse of apply()
-    def unapply(sx : SExp): Option[(List[S], SExp)] = safeMatch (sx) {
+    def unapply(sx: SExp): Option[(List[S], SExp)] = safeMatch(sx) {
       case L(S("lambda") :: L(sxvars) :: List(sxbody)) =>
         (sxvars.map(_.asInstanceOf[S]), sxbody)
     }
@@ -54,9 +56,9 @@ object LambdoSyntax {
   object SLetRec {
     def unapply(sx: SExp): Option[(List[S], List[SExp], SExp)] = safeMatch(sx) {
       case L(S("letrec") :: L(clauses) :: body :: List()) => {
-        val namesXvalues : List[(S,SExp)] = clauses map ({case L(List(name,value)) => (name.asInstanceOf[S],value)})
-        val (names,values) = List.unzip(namesXvalues)
-        (names,values,body)
+        val namesXvalues: List[(S, SExp)] = clauses map ({case L(List(name, value)) => (name.asInstanceOf[S], value)})
+        val (names, values) = namesXvalues.unzip
+        (names, values, body)
       }
     }
   }
@@ -101,7 +103,7 @@ object LambdoSyntax {
   case object BoolTrue extends Exp
   case object BoolFalse extends Exp
   case class IntNum(z: BigInt) extends Exp
-  case class EmptyList() extends Exp
+  case object EmptyList extends Exp
   case class PrimOp(p: String) extends Exp
 
   // parseDef: Converts an S-Expression into a Def.
@@ -141,7 +143,7 @@ object LambdoSyntax {
       Seq(exps map parseExp)
 
     case L(f :: args) => App(parseExp(f), args map parseExp)
-    case L(List()) => EmptyList()
+    case L(List()) => EmptyList
   }
 
 }
@@ -155,13 +157,13 @@ object SemanticDomains {
   type Env = scala.collection.immutable.Map[String, Cell]
 
   // Scala allows new cases to appear anywhere.
-  case class Closure(lam : Lambda, env : Env) extends SExp
+  case class Closure(lam: Lambda, env: Env) extends SExp
   case object True extends SExp
   case object False extends SExp
   case object Unit extends SExp
-  case class Prim(p : String) extends SExp
+  case class Prim(p: String) extends SExp
 
-  class Cell(var value : Value)
+  class Cell(var value: Value)
 }
 
 
@@ -175,19 +177,19 @@ class LambdoInterpreter {
   def cell(value: Value): Cell = new Cell(value)
 
   // Environments:
-  val emptyEnv: Env = scala.collection.immutable.TreeMap[String,Cell]()
-  val globalEnv = scala.collection.mutable.HashMap[String,Value]()
+  val emptyEnv: Env = scala.collection.immutable.TreeMap[String, Cell]()
+  val globalEnv = scala.collection.mutable.HashMap[String, Value]()
 
   // lookup: Looks up a variable in an environment, but falls back on
   // the global environment.
-  def lookup (e: Env)(v: String): Value = (e get v) match {
+  def lookup(e: Env)(v: String): Value = (e get v) match {
     case Some(cell) => cell.value
     case None => globalEnv(v)
   }
 
   // set: Set a variable's value in an environment if it exists, and
   // set it in the global environment if not.
-  def set (e: Env)(v: String)(value: Value) = (e get v) match {
+  def set(e: Env)(v: String)(value: Value) = (e get v) match {
     case Some(cell) => cell.value = value
     case None => globalEnv(v) = value
   }
@@ -211,70 +213,70 @@ class LambdoInterpreter {
     case BoolFalse => False
     case IntNum(z) => Z(z)
     case PrimOp(p) => Prim(p)
-    case EmptyList() => L(List())
+    case EmptyList => L(List())
     case Void => Unit
 
     // Core:
-    case Var(name) => lookup (env) (name)
+    case Var(name) => lookup(env)(name)
 
     case lam @ Lambda(args, body) => Closure(lam, env)
 
     case App(f, args) => {
-      val proc = eval(f,env)
+      val proc = eval(f, env)
 
-      val vals : List[Value] = args map (eval(_,env))
+      val vals: List[Value] = args map (eval(_, env))
 
-      (proc,vals) match {
-        case (Closure(Lambda(vars,body), env2),_) =>
+      (proc, vals) match {
+        case (Closure(Lambda(vars, body), env2), _) =>
           eval(body, env2 ++ (vars zip (vals map (cell _))))
 
-        case (Prim("+"),List(Z(a), Z(b))) => Z(a + b)
-        case (Prim("-"),List(Z(a), Z(b))) => Z(a - b)
-        case (Prim("*"),List(Z(a), Z(b))) => Z(a * b)
-        case (Prim("/"),List(Z(a), Z(b))) => Z(a / b)
-        case (Prim("<"),List(Z(a), Z(b))) => if (a < b) True else False
-        case (Prim("="),List(Z(a), Z(b))) => if (a == b) True else False
+        case (Prim("+"), List(Z(a), Z(b))) => Z(a + b)
+        case (Prim("-"), List(Z(a), Z(b))) => Z(a - b)
+        case (Prim("*"), List(Z(a), Z(b))) => Z(a * b)
+        case (Prim("/"), List(Z(a), Z(b))) => Z(a / b)
+        case (Prim("<"), List(Z(a), Z(b))) => if (a < b) True else False
+        case (Prim("="), List(Z(a), Z(b))) => if (a == b) True else False
       }
     }
  
     // Sugar:
-    case If(cond,cons,alt) =>
-      if (eval(cond,env) != False)
-        { eval(cons,env) }
+    case If(cond, cons, alt) =>
+      if (eval(cond, env) != False)
+        eval(cons, env)
       else
-        { eval(alt,env) }
+        eval(alt, env)
 
     case LetRec(names, funs, body) => {
       val cells = funs map ((_ : Lambda) => cell(null))
       val namesXcells = names zip cells
       val env2 = env ++ namesXcells
-      val vals = funs map (eval(_,env2))
+      val vals = funs map (eval(_, env2))
 
       for ((c,value) <- cells zip vals) {
         c.value = value
       }
 
-      eval(body,env2)
+      eval(body, env2)
     }
 
-    case Let1(name,value,body) => 
-      eval(body, env(name) = cell(eval(value,env)))
+    case Let1(name, value, body) => 
+      eval(body, env + (name -> cell(eval(value, env))))
 
-    case Set(name,value,body) => {
-      set (env) (name) (eval(value,env))
+    case Set(name, value, body) => {
+      set(env)(name)(eval(value,env))
       eval(body,env)
     }
-    
+
     case Seq(List()) => Unit
     case Seq(List(exp)) => eval(exp,env)
     case Seq(exp :: rest) => {
-      eval(exp,env)
-      eval(Seq(rest),env)
+      eval(exp, env)
+      eval(Seq(rest), env)
     }
   }
 }
 
-object Lambdo extends Application {
+object Lambdo extends App {
   val stdin: String = (scala.io.Source.fromInputStream(System.in)) mkString ""
   val sxs: List[SExp] = SParser.parse(stdin)
   val defs: List[LambdoSyntax.Def] = sxs map LambdoSyntax.parseDef
