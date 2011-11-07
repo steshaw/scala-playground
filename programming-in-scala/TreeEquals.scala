@@ -15,4 +15,10 @@ class Branch[+T] (
   val elem: T,
   val left: Tree[T],
   val right: Tree[T]
-) extends Tree[T]
+) extends Tree[T] {
+  override def equals(other: Any) = other match {
+    case that: Branch[T] => 
+      this.elem == that.elem && this.left == that.left && this.right == that.right
+    case _ => false
+  }
+}
