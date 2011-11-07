@@ -16,17 +16,15 @@ class Branch[+T] (
   val left: Tree[T],
   val right: Tree[T]
 ) extends Tree[T] {
+
   override def equals(other: Any) = other match {
-    case that: Branch[_] => 
-      this.elem == that.elem && this.left == that.left && this.right == that.right
+    case that: Branch[_] =>  that.canEqual(this) && this.elem == that.elem && 
+                             this.left == that.left && this.right == that.right
     case _ => false
   }
 
   override def hashCode: Int =
     41 * (41 * (41 + elem.hashCode) + left.hashCode) + right.hashCode
 
-  def canEqual(other: Any) = other match {
-    case that: Branch[_] => true
-    case _ => false
-  }
+  def canEqual(other: Any) = other.isInstanceOf[Branch[_]]
 }
