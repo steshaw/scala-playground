@@ -21,6 +21,13 @@ sealed abstract class List[A] {
     case Nil() => bs
     case Cons(a, as) => Cons(a, as.append(bs))
   }
+
+  def flatMap[B](f: A => List[B]): List[B] = this match {
+    case Nil() => Nil()
+    case Cons(a, as) => f(a).append(as.flatten(f))
+  }
+
+  def flatten[B](implicit f: A => List[B]): List[B] = flatMap(f)
 }
 case class Cons[A](head: A, tail: List[A]) extends List[A]
 case class Nil[A]() extends List[A]
@@ -52,5 +59,6 @@ object Demo {
   val cs = List(6)
   val ds = Nil[Int]()
   val xss = List(as, ds, bs, ds, cs, ds)
-  val flat = List.flatten(xss)
+  val flattened1 = List.flatten(xss)
+  val flattened2 = xss.flatten
 }
