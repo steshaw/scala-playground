@@ -24,6 +24,8 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A]
 case object Nil extends List[Nothing]
 
 object List {
+  def apply[T](ts: T*): List[T] = (ts :\ (Nil: List[T]))((head, tail) => Cons(head, tail))
+
   def flatten[A](xss: List[List[A]]): List[A] = xss match {
     case Nil => Nil
     case Cons(xs, xss) => append(xs, (flatten(xss)))
@@ -42,8 +44,10 @@ object List {
 }
 
 object Demo {
-  val as = Cons(1, Cons(2, Nil))
-  val bs = Cons(3, Cons(4, Nil))
-  val xxs = Cons(as, Cons(bs, Nil))
+  val as = List(1,2,3)
+  val bs = List(4,5)
+  val cs = List(6)
+  val ds = Nil
+  val xxs = List(as, ds, bs, ds, cs, ds)
   val flat = List.flatten(xxs)
 }
