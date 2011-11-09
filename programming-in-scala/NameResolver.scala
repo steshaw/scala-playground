@@ -1,5 +1,6 @@
 import scala.actors.Actor
 import Actor._
+import scala.util.control.Exception.catching
 
 object NameResolver extends Actor {
   import java.net.{InetAddress, UnknownHostException}
@@ -7,8 +8,11 @@ object NameResolver extends Actor {
   def act() {
     loop {
       react {
-        case (name: String, actor: Actor) => 
-          actor ! getIp(name)
+        case (name: String, actor: Actor) => {
+          val ip = getIp(name)
+          printf("ip = %s\n", ip)
+          actor ! ip
+        }
         case "EXIT" => 
           println("Name resolver exiting.")
           throw new RuntimeException("I'm outta here")
@@ -18,11 +22,6 @@ object NameResolver extends Actor {
     }
   }
 
-  def getIp(name: String): Option[InetAddress] = {
-    try {
-      Some(InetAddress.getByName(name))
-    } catch {
-      case _:UnknownHostException => None
-    }
-  }
+  def getIp(name: String): Option[InetAddress] =
+    catching(classOf[UnknownHostException]) opt InetAddress.getByName(name)
 }
