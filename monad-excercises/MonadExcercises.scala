@@ -39,21 +39,9 @@ object Monad {
 }
  
 object MonadicFunctions {
-  def sequence[M[_], A](as: List[M[A]], m: Monad[M]): M[List[A]] = as match {
-    case Nil => m.unital(Nil)
-    case ma :: mas => {
-      var recurse = sequence(mas, m)
-      m.flatMap(ma, (a: A) => m.flatMap(recurse, (as: List[A]) => m.unital(a :: as)))
-    }
-  }
-
-  def sequence[A](as: List[Option[A]]): Option[List[A]] = as match {
-    case Nil => Option(Nil)
-    case oa :: as => {
-      var recurse = sequence(as)
-      oa.flatMap((a: A) => recurse.flatMap((as: List[A]) => Option(a :: as)))
-    }
-  }
+  def sequence[M[_], A](as: List[M[A]], m: Monad[M]): M[List[A]] =
+    (as :\ m.unital(Nil : List[A]))((ma: M[A], acc: M[List[A]]) =>
+      m.flatMap(ma, (a: A) => m.flatMap(acc, (as: List[A]) => m.unital(a :: as))))
 
   def fmap[M[_], A, B](a: M[A], f: A => B, m: Monad[M]): M[B] =
     m.flatMap(a, (a: A) => m.unital(f(a)))
@@ -64,21 +52,12 @@ object MonadicFunctions {
   def apply[M[_], A, B](f: M[A => B], a: M[A], m: Monad[M]): M[B] =
     m.flatMap(f, (f: A => B) => m.flatMap(a, (a: A) => m.unital(f(a))))
  
-  def filterM[M[_], A](f: A => M[Boolean], as: List[A], m: Monad[M]): M[List[A]] = as match {
-    case Nil     => m.unital(Nil)
-    case a :: as => {
-      var mb = f(a)
-      var rest = filterM(f, as, m)
-      m.flatMap(mb, (b: Boolean) => m.flatMap(rest, (as: List[A]) => m.unital(if (b) a :: as else as)))
-    }
-  }
+  def filterM[M[_], A](f: A => M[Boolean], as: List[A], m: Monad[M]): M[List[A]] =
+    (as :\ m.unital(Nil: List[A]))((a: A, acc: M[List[A]]) =>
+      m.flatMap(f(a), (b: Boolean) => m.flatMap(acc, (as: List[A]) => m.unital(if (b) a :: as else as))))
  
   def replicateM[M[_], A](n: Int, ma: M[A], m: Monad[M]): M[List[A]] =
-    if (n <= 0) m.unital(Nil)
-    else {
-      var rest = replicateM(n-1, ma, m)
-      m.flatMap(ma, (a: A) => m.flatMap(rest, (as: List[A]) => m.unital(a :: as)))
-    }
+    sequence((1 to n).toList.map(_ => ma), m)
  
   def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
     m.flatMap(a, (a: A) => m.flatMap(b, (b: B) => m.unital(f(a, b))))
