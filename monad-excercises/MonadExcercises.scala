@@ -57,7 +57,7 @@ object MonadicFunctions {
       m.flatMap(f(a), (b: Boolean) => m.flatMap(acc, (as: List[A]) => m.unital(if (b) a :: as else as))))
  
   def replicateM[M[_], A](n: Int, ma: M[A], m: Monad[M]): M[List[A]] =
-    sequence((1 to n).toList.map(_ => ma), m)
+    sequence(List.fill(n)(ma), m)
  
   def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
     m.flatMap(a, (a: A) => m.flatMap(b, (b: B) => m.unital(f(a, b))))
