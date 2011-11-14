@@ -66,14 +66,20 @@ object MonadicFunctions {
     m.flatMap(a, (a: A) =>
       fmap(b, (b: B) =>
         f(a, b), m))
+
+  def lift3[M[_], A, B, C, D](f: (A, B, C) => D, ma: M[A], mb: M[B], mc: M[C], m: Monad[M]): M[D] =
+    apply(apply(fmap(ma, f.curried, m), mb, m), mc, m)
  
-  def lift3[M[_], A, B, C, D](f: (A, B, C) => D, a: M[A], b: M[B], c: M[C], m: Monad[M]): M[D] =
+  def alift3[M[_], A, B, C, D](f: (A, B, C) => D, a: M[A], b: M[B], c: M[C], m: Monad[M]): M[D] =
     m.flatMap(a, (a: A) =>
       m.flatMap(b, (b: B) =>
         fmap(c, (c: C) =>
           f(a, b, c), m)))
 
-  def lift4[M[_], A, B, C, D, E](f: (A, B, C, D) => E, a: M[A], b: M[B], c: M[C], d: M[D], m: Monad[M]): M[E] =
+  def lift4[M[_], A, B, C, D, E](f: (A, B, C, D) => E, ma: M[A], mb: M[B], mc: M[C], md: M[D], m: Monad[M]): M[E] =
+    apply(apply(apply(fmap(ma, f.curried, m), mb, m), mc, m), md, m)
+
+  def alift4[M[_], A, B, C, D, E](f: (A, B, C, D) => E, a: M[A], b: M[B], c: M[C], d: M[D], m: Monad[M]): M[E] =
     m.flatMap(a, (a: A) =>
       m.flatMap(b, (b: B) =>
         m.flatMap(c, (c: C) =>
