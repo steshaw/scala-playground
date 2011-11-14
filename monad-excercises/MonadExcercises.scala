@@ -60,7 +60,7 @@ object MonadicFunctions {
     sequence(List.fill(n)(ma), m)
  
   def lift2[M[_], A, B, C](f: (A, B) => C, ma: M[A], mb: M[B], m: Monad[M]): M[C] =
-    apply(fmap(ma, (a: A) => (b: B) => f(a, b), m), mb, m)
+    apply(fmap(ma, f.curried, m), mb, m)
 
   def alift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
     m.flatMap(a, (a: A) =>
