@@ -59,7 +59,10 @@ object MonadicFunctions {
   def replicateM[M[_], A](n: Int, ma: M[A], m: Monad[M]): M[List[A]] =
     sequence(List.fill(n)(ma), m)
  
-  def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
+  def lift2[M[_], A, B, C](f: (A, B) => C, ma: M[A], mb: M[B], m: Monad[M]): M[C] =
+    apply[M, B, C](fmap[M, A, B => C](ma, (a: A) => (b: B) => f(a, b), m), mb, m)
+
+  def alift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
     m.flatMap(a, (a: A) =>
       fmap(b, (b: B) =>
         f(a, b), m))
@@ -77,5 +80,6 @@ object MonadicFunctions {
           fmap(d, (d: D) =>
             f(a, b, c, d), m))))
 
-  // lift3, lift4, etc. Interesting question: Can we have liftN?
+  // Interesting question: Can we have liftN?
+
 }
