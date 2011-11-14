@@ -64,5 +64,18 @@ object MonadicFunctions {
       fmap(b, (b: B) =>
         f(a, b), m))
  
+  def lift3[M[_], A, B, C, D](f: (A, B, C) => D, a: M[A], b: M[B], c: M[C], m: Monad[M]): M[D] =
+    m.flatMap(a, (a: A) =>
+      m.flatMap(b, (b: B) =>
+        fmap(c, (c: C) =>
+          f(a, b, c), m)))
+
+  def lift4[M[_], A, B, C, D, E](f: (A, B, C, D) => E, a: M[A], b: M[B], c: M[C], d: M[D], m: Monad[M]): M[E] =
+    m.flatMap(a, (a: A) =>
+      m.flatMap(b, (b: B) =>
+        m.flatMap(c, (c: C) =>
+          fmap(d, (d: D) =>
+            f(a, b, c, d), m))))
+
   // lift3, lift4, etc. Interesting question: Can we have liftN?
 }
