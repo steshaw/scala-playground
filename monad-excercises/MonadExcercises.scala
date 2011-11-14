@@ -4,7 +4,6 @@
 
 import sys.error
 
-// 1. Start here. Observe this trait
 trait Monad[M[_]] {
   def flatMap[A, B](a: M[A], f: A => M[B]): M[B]
   def unital[A](a: A): M[A]
@@ -18,49 +17,71 @@ case class Identity[A](a: A)
  
 // Monad implementations
 object Monad {
-  // 2. Replace error("todo") with an implementation
-  def ListMonad: Monad[List] = error("todo")
+  def ListMonad: Monad[List] = new Monad[List] {
+    override def flatMap[A, B](a: List[A], f: A => List[B]): List[B] = a flatMap f
+    override def unital[A](a: A): List[A] = List(a)
+  }
  
-  // 3. Replace error("todo") with an implementation
-  def OptionMonad: Monad[Option] = error("todo")
+  def OptionMonad: Monad[Option] = new Monad[Option] {
+    override def flatMap[A, B](a: Option[A], f: A => Option[B]): Option[B] = a flatMap f
+    override def unital[A](a: A): Option[A] = Option(a)
+  }
  
-  // 4. Replace error("todo") with an implementation
-  def InterMonad: Monad[Inter] = error("todo")
+  def InterMonad: Monad[Inter] = new Monad[Inter] {
+    override def flatMap[A, B](a: Inter[A], f: A => Inter[B]): Inter[B] = Inter((n: Int) => f(a.f(n)).f(n))
+    override def unital[A](a: A): Inter[A] = Inter((n) => a)
+  }
  
-  // 5. Replace error("todo") with an implementation
-  def IdentityMonad: Monad[Identity] = error("todo")
+  def IdentityMonad: Monad[Identity] = new Monad[Identity] {
+    override def flatMap[A, B](a: Identity[A], f: A => Identity[B]): Identity[B] = f(a.a)
+    override def unital[A](a: A): Identity[A] = Identity(a)
+  }
 }
  
 object MonadicFunctions {
-  // 6. Replace error("todo") with an implementation
-  def sequence[M[_], A](as: List[M[A]], m: Monad[M]): M[List[A]] =
-    error("todo")
- 
-  // 7. Replace error("todo") with an implementation
+  def sequence[M[_], A](as: List[M[A]], m: Monad[M]): M[List[A]] = as match {
+    case Nil => m.unital(Nil)
+    case ma :: mas => {
+      var recurse = sequence(mas, m)
+      m.flatMap(ma, (a: A) => m.flatMap(recurse, (as: List[A]) => m.unital(a :: as)))
+    }
+  }
+
+  def sequence[A](as: List[Option[A]]): Option[List[A]] = as match {
+    case Nil => Option(Nil)
+    case oa :: as => {
+      var recurse = sequence(as)
+      oa.flatMap((a: A) => recurse.flatMap((as: List[A]) => Option(a :: as)))
+    }
+  }
+
   def fmap[M[_], A, B](a: M[A], f: A => B, m: Monad[M]): M[B] =
-    error("todo")
+    m.flatMap(a, (a: A) => m.unital(f(a)))
  
-  // 8. Replace error("todo") with an implementation
   def flatten[M[_], A](a: M[M[A]], m: Monad[M]): M[A] =
-    error("todo")
+    m.flatMap(a, identity[M[A]])
  
-  // 9. Replace error("todo") with an implementation
   def apply[M[_], A, B](f: M[A => B], a: M[A], m: Monad[M]): M[B] =
-    error("todo")
+    m.flatMap(f, (f: A => B) => m.flatMap(a, (a: A) => m.unital(f(a))))
  
-  // 10. Replace error("todo") with an implementation
-  def filterM[M[_], A](f: A => M[Boolean], as: List[A]
-    , m: Monad[M]): M[List[A]] =
-    error("todo")
+  def filterM[M[_], A](f: A => M[Boolean], as: List[A], m: Monad[M]): M[List[A]] = as match {
+    case Nil     => m.unital(Nil)
+    case a :: as => {
+      var mb = f(a)
+      var rest = filterM(f, as, m)
+      m.flatMap(mb, (b: Boolean) => m.flatMap(rest, (as: List[A]) => m.unital(if (b) a :: as else as)))
+    }
+  }
  
-  // 11. Replace error("todo") with an implementation
-  def replicateM[M[_], A](n: Int, a: M[A], m: Monad[M]): M[List[A]] =
-    error("todo: flatMap n times to produce a list")
+  def replicateM[M[_], A](n: Int, ma: M[A], m: Monad[M]): M[List[A]] =
+    if (n <= 0) m.unital(Nil)
+    else {
+      var rest = replicateM(n-1, ma, m)
+      m.flatMap(ma, (a: A) => m.flatMap(rest, (as: List[A]) => m.unital(a :: as)))
+    }
  
-  // 12. Replace error("todo") with an implementation
-  def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B]
-    , m: Monad[M]): M[C] =
-    error("todo")
+  def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
+    m.flatMap(a, (a: A) => m.flatMap(b, (b: B) => m.unital(f(a, b))))
  
   // lift3, lift4, etc. Interesting question: Can we have liftN?
 }
