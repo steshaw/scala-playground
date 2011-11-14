@@ -28,8 +28,8 @@ object Monad {
   }
  
   def InterMonad: Monad[Inter] = new Monad[Inter] {
-    override def flatMap[A, B](a: Inter[A], f: A => Inter[B]): Inter[B] = Inter((n: Int) => f(a.f(n)).f(n))
-    override def unital[A](a: A): Inter[A] = Inter((n) => a)
+    override def flatMap[A, B](a: Inter[A], f: A => Inter[B]): Inter[B] = Inter(n => f(a.f(n)).f(n))
+    override def unital[A](a: A): Inter[A] = Inter(_ => a)
   }
  
   def IdentityMonad: Monad[Identity] = new Monad[Identity] {
@@ -40,7 +40,7 @@ object Monad {
  
 object MonadicFunctions {
   def sequence[M[_], A](as: List[M[A]], m: Monad[M]): M[List[A]] =
-    (as :\ m.unital(Nil : List[A]))((ma: M[A], acc: M[List[A]]) =>
+    (as :\ m.unital(Nil: List[A]))((ma, acc) =>
       m.flatMap(ma, (a: A) => m.flatMap(acc, (as: List[A]) => m.unital(a :: as))))
 
   def fmap[M[_], A, B](a: M[A], f: A => B, m: Monad[M]): M[B] =
@@ -50,19 +50,19 @@ object MonadicFunctions {
     m.flatMap(a, identity[M[A]])
  
   def apply[M[_], A, B](f: M[A => B], a: M[A], m: Monad[M]): M[B] =
-    m.flatMap(f, (f: A => B) => m.flatMap(a, (a: A) => m.unital(f(a))))
+    m.flatMap(f, (f: A => B) => fmap(a, f, m))
  
   def filterM[M[_], A](f: A => M[Boolean], as: List[A], m: Monad[M]): M[List[A]] =
-    (as :\ m.unital(Nil: List[A]))((a: A, acc: M[List[A]]) =>
-      m.flatMap(f(a), (b: Boolean) => m.flatMap(acc, (as: List[A]) => m.unital(if (b) a :: as else as))))
+    (as :\ m.unital(Nil: List[A]))((a, acc) =>
+      m.flatMap(f(a), (b: Boolean) => fmap(acc, (as: List[A]) => if (b) a :: as else as, m)))
  
   def replicateM[M[_], A](n: Int, ma: M[A], m: Monad[M]): M[List[A]] =
     sequence(List.fill(n)(ma), m)
  
   def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
-    m.flatMap(a, (a: A) => 
-      m.flatMap(b, (b: B) => 
-        m.unital(f(a, b))))
+    m.flatMap(a, (a: A) =>
+      fmap(b, (b: B) =>
+        f(a, b), m))
  
   // lift3, lift4, etc. Interesting question: Can we have liftN?
 }
