@@ -8,7 +8,7 @@ trait Monad[M[_]] {
   def flatMap[A, B](a: M[A], f: A => M[B]): M[B]
   def unital[A](a: A): M[A]
 }
- 
+
 // A simple data type, which turns out to satisfy the above trait
 case class Inter[A](f: Int => A)
  
@@ -60,7 +60,9 @@ object MonadicFunctions {
     sequence(List.fill(n)(ma), m)
  
   def lift2[M[_], A, B, C](f: (A, B) => C, a: M[A], b: M[B], m: Monad[M]): M[C] =
-    m.flatMap(a, (a: A) => m.flatMap(b, (b: B) => m.unital(f(a, b))))
+    m.flatMap(a, (a: A) => 
+      m.flatMap(b, (b: B) => 
+        m.unital(f(a, b))))
  
   // lift3, lift4, etc. Interesting question: Can we have liftN?
 }
