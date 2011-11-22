@@ -1,4 +1,4 @@
-import scala.swing._
+import swing.{Button, MainFrame, SimpleSwingApplication}
 
 object FirstSwing extends SimpleSwingApplication {
   def top = new MainFrame {
