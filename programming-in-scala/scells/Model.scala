@@ -30,6 +30,7 @@ class Model(val height: Int,  val width: Int) extends Evaluator with Arithmetic 
     }
 
     reactions += {
+      // FIXME: StackOverflow can occur if there are cyclic dependencies.
       case ValueChanged(_) => value = evaluate(formula)
     }
   }
