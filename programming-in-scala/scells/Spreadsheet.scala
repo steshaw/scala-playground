@@ -2,6 +2,7 @@ package org.stairwaybook.scells
 
 import java.awt.Color
 import swing._
+import event.TableUpdated
 
 class Spreadsheet(val height: Int, val width: Int) extends ScrollPane {
   val cellModel = new Model(height, width)
@@ -23,6 +24,12 @@ class Spreadsheet(val height: Int, val width: Int) extends ScrollPane {
         new Label(cellModel.cells(row)(column).toString) {
           xAlignment = Alignment.Right
         }
+
+    reactions += {
+      case TableUpdated(table, rows, column) =>
+        for (row <- rows)
+          cellModel.cells(row)(column).formula = FormulaParsers.parse(userData(row, column))
+    }
   }
   val rowHeader = new ListView((0 until  height) map (_.toString)) {
     fixedCellWidth = 30
