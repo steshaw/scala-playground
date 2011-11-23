@@ -15,6 +15,7 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift/first/target/scala_2.8.1/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
     <facet type="web" name="Web2">
@@ -25,6 +26,7 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift-2.2/lift_basic/src/main/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
     <facet type="web" name="Web3">
@@ -35,6 +37,7 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift-2.2/lift_blank/src/main/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
     <facet type="web" name="Web4">
@@ -45,6 +48,7 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift-2.2/lift_mvc/src/main/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
     <facet type="web" name="Web5">
@@ -55,6 +59,7 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift-2.2/lift_xhtml/src/main/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
     <facet type="web" name="Web6">
@@ -65,12 +70,15 @@
         <webroots>
           <root url="file://$MODULE_DIR$/lift/first/src/main/webapp" relative="/" />
         </webroots>
+        <sourceRoots />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/programming-in-scala/scells" isTestSource="false" />
+    </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-library-2.9.1" level="application" />
