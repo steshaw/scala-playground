@@ -56,7 +56,7 @@ object EssenceIterator extends App {
 
   //
   // Validation with Applicative Functors
-  // 
+  //
 
   case class Monster(name: String, health: Int)
 
@@ -107,20 +107,26 @@ object EssenceIterator extends App {
   }
 
   def validateName(name: String): Validation[String] =
-    if (name.length > 0) Success(name) else Failure(List("Name can't be empty"))
+    if (name.length > 0)
+      Success(name)
+    else
+      Failure(List("Name can't be empty"))
 
   def validateHealth(health: Int): Validation[Int] =
-    if (health > 0 && health < 100) Success(health) else Failure(List("Health must be > 0 and < 100"))
+    if (health > 0 && health < 100)
+      Success(health) 
+    else
+      Failure(List("Health must be > 0 and < 100"))
 
   def createValidMonster2(name: String, health: Int): Validation[Monster] = {
     val valName = validateName(name)
     val valHealth = validateHealth(health)
     val valCreateMonster = validationApplicative.pure((createMonster(_:String, _:Int)).curried)
-    val b = validationApplicative.applic(valCreateMonster, valName)
-    validationApplicative.applic(b, valHealth)
+    validationApplicative.applic(validationApplicative.applic(valCreateMonster, valName), valHealth)
   }
 
   def explain(vm: Validation[Monster]) {
+    println
     vm match {
       case Success(monster) => println("Monster: " + monster)
       case Failure(errors) => println("Oops: "); errors foreach println
