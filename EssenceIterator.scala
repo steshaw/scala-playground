@@ -81,3 +81,6 @@ def createValidMonster(name: String, health: Int): Monster = {
     throw new ValidationFailedException(errors)
   monster
 }
+
+// pure :: a -> f a
+// applic :: m (a -> b) -> f a -> f b
