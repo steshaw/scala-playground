@@ -77,15 +77,29 @@ def createValidMonster(name: String, health: Int): Monster = {
   else {
     errors += "Name can't be empty"
   }
-  if (errors.nonEmpty) 
+  if (errors.nonEmpty)
     throw new ValidationFailedException(errors)
   monster
 }
 
 // pure :: a -> f a
-// applic :: m (a -> b) -> f a -> f b
+// applic :: f (a -> b) -> f a -> f b
+
+trait Applicative[F[_]] {
+  def pure[A](a: A): F[A]
+  def applic[A, B](fab: F[A => B], fa: F[A]): F[B]
+}
 
 sealed trait Validation[+A]
 case class Success[+A](value: A) extends Validation[A]
-case class Failure(message: List[String]) extends Validation[Nothing]
+case class Failure(messages: List[String]) extends Validation[Nothing]
 
+def validationapplicative[A] = new Applicative[Validation] {
+  def pure[A](a: A) = Success(a)
+  def applic[A, B](fab: Validation[A => B], fa: Validation[A]) = (fab, fa) match {
+    case (Success(f), Success(a)) => Success(f(a))
+    case (Success(f), Failure(messages)) => Failure(messages)
+    case (Failure(messages), Success(_)) => Failure(messages)
+    case (Failure(messages1), Failure(messages2)) => Failure(messages1 ++ messages2)
+  }
+}
