@@ -52,3 +52,32 @@ def any(list: List[Boolean]) = accumulate(list)(booleanOrMonoid)
 
 // traverse :: Applicative f => (a -> f b) -> t a -> f (t b)
 
+//
+// Validation with Applicative Functors
+// 
+
+case class Monster(name: String, health: Int)
+
+def createMonster(name: String, health: Int) = Monster(name, health)
+
+case class ValidationFailedException(errors: Seq[String]) extends Exception
+
+def createValidMonster(name: String, health: Int): Monster = {
+  import scala.collection.mutable.ListBuffer
+  val errors = ListBuffer.empty[String]
+  var monster: Monster = null
+  if (name.length > 0) {
+    if (health > 0 && health < 100) {
+      monster = createMonster(name, health)
+    }
+    else {
+      errors += "Health must be > 0 and < 100"
+    }
+  }
+  else {
+    errors += "Name can't be empty"
+  }
+  if (errors.nonEmpty) 
+    throw new ValidationFailedException(errors)
+  monster
+}
