@@ -38,3 +38,14 @@ def sum(list: List[Int]): Int = accumulate(list)(intPlusMonoid)
 def product(list: List[Int]): Int = accumulate(list)(intTimesMonoid)
 def appendAll(list: List[String]) = accumulate(list)
 def flatten[A](list: List[List[A]]) = accumulate(list)
+
+val booleanAndMonoid = new Monoid[Boolean] {
+  def zero = true
+  def append(a: Boolean, b: Boolean) = a && b
+}
+val booleanOrMonoid = new Monoid[Boolean] {
+  def zero = false
+  def append(a: Boolean, b: Boolean) = a || b
+}
+def all(list: List[Boolean]) = accumulate(list)(booleanAndMonoid)
+def any(list: List[Boolean]) = accumulate(list)(booleanOrMonoid)
