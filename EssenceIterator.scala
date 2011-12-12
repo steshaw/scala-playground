@@ -84,3 +84,8 @@ def createValidMonster(name: String, health: Int): Monster = {
 
 // pure :: a -> f a
 // applic :: m (a -> b) -> f a -> f b
+
+sealed trait Validation[+A]
+case class Success[+A](value: A) extends Validation[A]
+case class Failure(message: List[String]) extends Validation[Nothing]
+
