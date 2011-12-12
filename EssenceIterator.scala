@@ -49,3 +49,6 @@ val booleanOrMonoid = new Monoid[Boolean] {
 }
 def all(list: List[Boolean]) = accumulate(list)(booleanAndMonoid)
 def any(list: List[Boolean]) = accumulate(list)(booleanOrMonoid)
+
+// traverse :: Applicative f => (a -> f b) -> t a -> f (t b)
+
