@@ -17,14 +17,24 @@ def accumulate[A: Monoid](list: List[A]): A = {
   total
 }
 
-def intPlusMonoid = new Monoid[Int] {
+val intPlusMonoid = new Monoid[Int] {
   override def zero = 0
   override def append(a: Int, b: Int) = a + b
 }
-def intTimesMonoid = new Monoid[Int] {
+val intTimesMonoid = new Monoid[Int] {
   override def zero = 1
   override def append(a: Int, b: Int) = a * b
+}
+implicit val stringMonoid = new Monoid[String] {
+  def zero = ""
+  def append(a: String, b: String) = a + b
+}
+implicit def listMonoid[A] = new Monoid[List[A]] {
+  def zero = List()
+  def append(a: List[A], b: List[A]) = a ++ b
 }
 
 def sum(list: List[Int]): Int = accumulate(list)(intPlusMonoid)
 def product(list: List[Int]): Int = accumulate(list)(intTimesMonoid)
+def appendAll(list: List[String]) = accumulate(list)
+def flatten[A](list: List[List[A]]) = accumulate(list)
