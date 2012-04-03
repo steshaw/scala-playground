@@ -8,7 +8,14 @@ object FoldRightBug {
     r
   }
 
+  def hi(a: =>Int) {
+    lazy var unused = a
+    println("hi")
+  }
+
   def main(args: Array[String]) {
+    hi(sys.error("zap!"))
+    sys.exit(0);
     val a = foldRight[Int, Int]((1 to 10).toList, sys.error("hi"))((a, b) => a)
     println(a)
     println("hi")
