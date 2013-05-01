@@ -14,7 +14,7 @@ def moreThanTwenty(x: Int) = {
 }
 
 val q0 = for {
-           x <- Array(1, 25, 40, 5, 23).toStream // note the .toStream
+           x <- Array(1, 25, 40, 5, 23).view // note the .view
            if lessThanThirty(x)
          } yield x
 
