@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "-- ex1"
+scala ex1.scala
+echo
+
+echo "-- ex2"
+scalac ex2.scala && scala ex2
+echo
+
+echo "-- ex3"
+scala ex3.scala
+echo
+
+echo "-- ex4"
+scala ex4.scala
+echo
