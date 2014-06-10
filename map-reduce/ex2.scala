@@ -21,21 +21,14 @@ object ex2 {
       Console.println("r = " + r)
     }
 
-/*
-
- FIX: Broken due to something about needing to import structual typing?
-
     {
-      implicit val foo = (p1: Building => Boolean) => {
+      implicit val foo = (p1: Building => Boolean) => new {
         def and(p2: Building => Boolean) = (b: Building) => p1(b) && p2(b)
       }
-      import language.implicitConversions
       import language.reflectiveCalls
-      import language.dynamics
-      val r2 = bs.filter(lowerThanSix and widerThan(3))
-      Console.println("r2 = " + r2)
+      val r = bs.filter(lowerThanSix and (widerThan(3)))
+      Console.println("r = " + r)
     }
-*/
 
     {
       case class Fred(p1: Building => Boolean) {
@@ -44,8 +37,8 @@ object ex2 {
 
       implicit val bar = (p1: Building => Boolean) => Fred(p1)
 
-      val r3 = bs.filter(lowerThanSix and widerThan(3))
-      Console.println("r3 = " + r3)
+      val r = bs.filter(lowerThanSix and widerThan(3))
+      Console.println("r = " + r)
     }
   }
 
