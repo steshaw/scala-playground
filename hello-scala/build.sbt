@@ -14,8 +14,8 @@ scalaVersion := "2.13.3"
 // It's possible to define many kinds of settings, such as:
 
 name := "hello-world"
-organization := "ch.epfl.scala"
-version := "1.0"
+organization := "org.steshaw"
+version := "0.1.0"
 
 // Note, it's not required for you to define these three settings. These are
 // mostly only necessary if you intend to publish your library's binaries on a
@@ -26,17 +26,7 @@ version := "1.0"
 // You can define other libraries as dependencies in your build like this:
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
-
-// Here, `libraryDependencies` is a set of dependencies, and by using `+=`,
-// we're adding the scala-parser-combinators dependency to the set of dependencies
-// that sbt will go and fetch when it starts up.
-// Now, in any Scala file, you can import classes, objects, etc., from
-// scala-parser-combinators with a regular import.
-
-// TIP: To find the "dependency" that you need to add to the
-// `libraryDependencies` set, which in the above example looks like this:
-
-// "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
 
 // You can use Scaladex, an index of all known published Scala libraries. There,
 // after you find the library you want, you can just copy/paste the dependency
@@ -72,6 +62,3 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % 
 //     )),
 //     name := "hello-world"
 //   )
-
-// To learn more about multi-project builds, head over to the official sbt
-// documentation at http://www.scala-sbt.org/documentation.html
