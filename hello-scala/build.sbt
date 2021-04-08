@@ -14,8 +14,13 @@ version := "0.1.0"
 // Want to use a published library in your project?
 // You can define other libraries as dependencies in your build like this:
 
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
-libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies +=
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies +=
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+libraryDependencies +=
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value
+
 
 // You can use Scaladex, an index of all known published Scala libraries. There,
 // after you find the library you want, you can just copy/paste the dependency
