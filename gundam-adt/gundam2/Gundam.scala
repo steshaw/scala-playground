@@ -1,6 +1,21 @@
 class Boom(s: String) extends Exception(s)
 
-object Gundam1 {
+object Direction {
+  val North = 1
+  val East = 2
+  val South = 3
+  val West = 4
+
+  def label(d: Int) =
+    d match {
+      case Direction.North => "north"
+      case Direction.East => "east"
+      case Direction.South => "south"
+      case Direction.West => "west"
+    }
+}
+
+object Gundam {
 
   def face(a: Any): Unit = {
     a match {
@@ -14,16 +29,17 @@ object Gundam1 {
   def stop: Unit = {}
   def triple_backflip = throw new Boom("triple backflip")
 
-  val north = "hi"
-  val east = 5.6
-  val south = new Exception("south")
-  val west = 1
+  val north = Direction.North
+  val east = Direction.East
+  val south = Direction.South
+  val west = Direction.West
 
   def try_it(f: => Unit): Unit = {
     try {
       f
     } catch {
       case e: Boom => println(e)
+      case e: MatchError => println("didn't cover all cases :(")
     }
   }
 
@@ -39,6 +55,8 @@ object Gundam1 {
   }
 
   def main(args: Array[String]): Unit = {
+    import Direction._
+    try_it(label(-35))
     go()
   }
 }
