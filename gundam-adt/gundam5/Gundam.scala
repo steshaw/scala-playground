@@ -20,6 +20,7 @@ sealed trait Command
 case class Face(dir: Direction) extends Command
 case object Start extends Command
 case object Stop extends Command
+case class Chain(cmd1: Command, cmd2: Command) extends Command
 
 object Gundam {
   import Direction._
@@ -34,11 +35,30 @@ object Gundam {
 
   def do_cmd(cmd: Command): Unit = {
     cmd match {
-      case Face(dir) => ()
+      case Face(_) => ()
       case Start => ()
       case Stop => ()
+      case Chain(_, _) => ()
     }
   }
+
+  val instructions =
+    Chain(
+      Chain(
+        Chain(
+          Face(East),
+          Chain(
+            Start,
+            Stop
+          )
+        ),
+        Face(West)
+      ),
+      Chain(
+        Start,
+        Stop
+      )
+    )
 
   def go(): Unit = {
     do_cmd(Face(North))
