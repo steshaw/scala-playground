@@ -6,16 +6,6 @@ case object East extends Direction
 case object South extends Direction
 case object West extends Direction
 
-object Direction {
-  def label(d: Direction) =
-    d match {
-      case North => "north"
-      case East => "east"
-      case South => "south"
-      case West => "west"
-    }
-}
-
 final abstract class Idle
 final abstract class Moving
 
@@ -66,6 +56,21 @@ object Gundam {
       }
     }
   }
+
+  def label(d: Direction) =
+    d match {
+      case North => "north"
+      case East => "east"
+      case South => "south"
+      case West => "west"
+    }
+
+  // Smarter exhaustivity checking.
+  def movingLabel(cmd: Command[Moving, _]): String =
+    cmd match {
+      case Stop => "stop"
+      case _: Chain[_, _, _] => "chain"
+    }
 
   implicit class Compose[A, B](cmd1: Command[A, B]) {
     def ~>[C](cmd2: Command[B, C]): Command[A, C] =
@@ -131,7 +136,11 @@ object Gundam {
   }
 
   def main(args: Array[String]): Unit = {
-    println(Direction.label(West))
+    println(label(West))
+
+    println(movingLabel(stop))
+    //println(movingLabel(start))
+
     // cmds1 and cmds2 seems equivalent but do so via
     // different nesting of Chains.
     assert(cmds1 != cmds2)
