@@ -24,23 +24,6 @@ case class Command(
 object Gundam {
   import Direction._
 
-  def face(a: Any): Unit = {
-    a match {
-      case a : Int => {
-        if (a < 0) throw new Boom("negative!")
-      }
-      case _ => ()
-    }
-  }
-  def start: Unit = {}
-  def stop: Unit = {}
-  def triple_backflip = throw new Boom("triple backflip")
-
-  val north = North
-  val east = East
-  val south = South
-  val west = West
-
   def try_it(f: => Unit): Unit = {
     try {
       f
@@ -49,19 +32,46 @@ object Gundam {
     }
   }
 
+  def do_cmd(cmd: Command): Unit = {
+    cmd match {
+      case Command(name, optDir) =>
+        name match {
+          case "face" => optDir match {
+            case Some(dir) => ()
+            case None => throw new Boom("no direction!")
+          }
+          case "start" => ()
+          case "stop" => ()
+        }
+    }
+  }
+
+  val start = Command("start", Some(North))
+  val stop = Command("stop", Some(North))
+  val face_north = Command("face", Some(North))
+  val face_east = Command("face", Some(East))
+  val face_south = Command("face", Some(South))
+  val face_west = Command("face", Some(West))
+  val triple_backflip1 =
+    Command("triple backflip!", Some(South))
+  val triple_backflip2 =
+    Command("triple backflip!", None)
+  val garbage = Command("garbage", None)
+
   def go(): Unit = {
-    face(north)
-    face(west)
-    face(south)
-    face(east)
-    start
-    stop
-    try_it(triple_backflip)
-    try_it(face(-35))
+    do_cmd(face_north)
+    do_cmd(face_west)
+    do_cmd(face_south)
+    do_cmd(face_east)
+    do_cmd(start)
+    do_cmd(stop)
+    try_it(do_cmd(triple_backflip1))
+    try_it(do_cmd(triple_backflip2))
+    try_it(do_cmd(garbage))
   }
 
   def main(args: Array[String]): Unit = {
-    try_it(label(West))
+    println(label(West))
     go()
   }
 }
