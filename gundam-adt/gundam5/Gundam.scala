@@ -92,6 +92,11 @@ object Gundam {
 
   def main(args: Array[String]): Unit = {
     println(label(West))
+    // cmds1 and cmds2 seems equivalent but do so via
+    // different nesting of Chains.
+    assert(cmds1 != cmds2)
+    println(cmds1)
+    println(cmds2)
     go()
   }
 }
