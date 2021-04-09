@@ -6,8 +6,9 @@ case object East extends Direction
 case object South extends Direction
 case object West extends Direction
 
-final abstract class Idle
-final abstract class Moving
+sealed trait IdleOrMoving
+final abstract class Idle extends IdleOrMoving
+final abstract class Moving extends IdleOrMoving
 
 sealed trait Command[Before, After]
 case class Face(dir: Direction) extends Command[Idle, Idle]
