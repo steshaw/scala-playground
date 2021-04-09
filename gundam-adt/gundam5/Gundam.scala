@@ -33,7 +33,7 @@ object Gundam {
     }
   }
 
-  def do_cmd(cmd: Command): Unit = {
+  def doCmd(cmd: Command): Unit = {
     cmd match {
       case Face(_) => ()
       case Start => ()
@@ -82,12 +82,12 @@ object Gundam {
   val cmds2 = move(east) ~> move(west)
 
   def go(): Unit = {
-    do_cmd(Face(North))
-    do_cmd(Face(West))
-    do_cmd(Face(South))
-    do_cmd(Face(East))
-    do_cmd(Start)
-    do_cmd(Stop)
+    doCmd(Face(North))
+    doCmd(Face(West))
+    doCmd(Face(South))
+    doCmd(Face(East))
+    doCmd(Start)
+    doCmd(Stop)
   }
 
   def main(args: Array[String]): Unit = {
