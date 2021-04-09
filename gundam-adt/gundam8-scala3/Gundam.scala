@@ -22,22 +22,20 @@ case class State(
   moving: Boolean
 )
 
-object Gundam {
+object Gundam:
 
-  def try_it(f: => Unit): Unit = {
-    try {
+  def try_it(f: => Unit): Unit =
+    try
       f
-    } catch {
+    catch
       case e @ (_: Boom | _: MatchError) => println(e)
-    }
-  }
 
   def apply[Before <: Status, After <: Status](
     cmd: Command[Before, After],
     state: State
-  ): State = {
+  ): State =
     val State(path, dir, moving) = state
-    cmd match {
+    cmd match
       case Face(dir) =>
         if (state.moving)
           throw new Boom(s"Trying to face ${dir} when moving!")
@@ -55,29 +53,24 @@ object Gundam {
       case Chain(cmd1, cmd2) => {
         apply(cmd2, apply(cmd1, state))
       }
-    }
-  }
 
   def label(d: Direction) =
-    d match {
+    d match
       case North => "north"
       case East => "east"
       case South => "south"
       case West => "west"
-    }
 
   // Smarter exhaustivity checking.
   def movingLabel(cmd: Command[Moving, _]): String =
-    cmd match {
+    cmd match
       case Stop => "stop"
       case _: Chain[Moving, _, _] =>
         "chain"
-    }
 
-  implicit class Compose[A <: Status, B <: Status](cmd1: Command[A, B]) {
+  implicit class Compose[A <: Status, B <: Status](cmd1: Command[A, B]):
     def ~>[C <: Status](cmd2: Command[B, C]): Command[A, C] =
       Chain(cmd1, cmd2)
-  }
 
   val start = Start
   val stop = Stop
@@ -120,7 +113,7 @@ object Gundam {
       moving = false
     )
 
-  def go(): Unit = {
+  def go(): Unit =
     val state0 = defaultState
     println(state0)
     val state1 = apply(Face(North), state0)
@@ -135,9 +128,8 @@ object Gundam {
     println(state5)
     val state6 = apply(Stop, state5)
     println(state6)
-  }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     println(label(West))
 
     println(movingLabel(stop))
@@ -163,5 +155,3 @@ object Gundam {
     // Final state of cmds1 and cmd2 are the same.
     assert(finalState1 == finalState2)
     go()
-  }
-}
