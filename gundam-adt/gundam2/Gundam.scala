@@ -1,17 +1,17 @@
 class Boom(s: String) extends Exception(s)
 
 object Direction {
-  val North = 1
-  val East = 2
-  val South = 3
-  val West = 4
+  type Direction = Int
+  val North: Direction = 1
+  val East: Direction = 2
+  val South: Direction = 3
+  val West: Direction = 4
 
-  def label(d: Int) =
+  def label(d: Direction) =
     d match {
-      case Direction.North => "north"
-      case Direction.East => "east"
-      case Direction.South => "south"
-      case Direction.West => "west"
+      case East => "east"
+      case South => "south"
+      case West => "west"
     }
 }
 
