@@ -1,12 +1,12 @@
 class Boom(s: String) extends Exception(s)
 
 sealed abstract class Direction
+case object North extends Direction
+case object East extends Direction
+case object South extends Direction
+case object West extends Direction
 
 object Direction {
-  case object North extends Direction
-  case object East extends Direction
-  case object South extends Direction
-  case object West extends Direction
   def label(d: Direction) =
     d match {
       case North => "north"
@@ -23,7 +23,6 @@ case object Stop extends Command
 case class Chain(cmd1: Command, cmd2: Command) extends Command
 
 object Gundam {
-  import Direction._
 
   def try_it(f: => Unit): Unit = {
     try {
@@ -91,7 +90,7 @@ object Gundam {
   }
 
   def main(args: Array[String]): Unit = {
-    println(label(West))
+    println(Direction.label(West))
     // cmds1 and cmds2 seems equivalent but do so via
     // different nesting of Chains.
     assert(cmds1 != cmds2)
