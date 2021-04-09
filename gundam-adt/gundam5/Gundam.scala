@@ -37,7 +37,6 @@ object Gundam {
       case Face(dir) => ()
       case Start => ()
       case Stop => ()
-      case _ => throw new Boom("not ruled out!")
     }
   }
 
