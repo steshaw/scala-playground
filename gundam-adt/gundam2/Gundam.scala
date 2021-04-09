@@ -1,17 +1,14 @@
 class Boom(s: String) extends Exception(s)
 
-object Direction {
-  type Direction = Int
-  val North: Direction = 1
-  val East: Direction = 2
-  val South: Direction = 3
-  val West: Direction = 4
+object Direction extends Enumeration {
+  val North, East, South, West = Value
 
-  def label(d: Direction) =
+  def label(d: Value) =
     d match {
+      case North => "north"
       case East => "east"
       case South => "south"
-      case West => "west"
+      //case West => "west"
     }
 }
 
@@ -56,7 +53,7 @@ object Gundam {
 
   def main(args: Array[String]): Unit = {
     import Direction._
-    try_it(label(-35))
+    try_it(label(West))
     go()
   }
 }
