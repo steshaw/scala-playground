@@ -16,15 +16,10 @@ object Direction {
     }
 }
 
-sealed trait Order
-case object Face extends Order
-case object Start extends Order
-case object Stop extends Order
-
-case class Command(
-  order: Order,
-  dir: Option[Direction]
-)
+sealed trait Command
+case class Face(dir: Direction) extends Command
+case object Start extends Command
+case object Stop extends Command
 
 object Gundam {
   import Direction._
@@ -39,31 +34,20 @@ object Gundam {
 
   def do_cmd(cmd: Command): Unit = {
     cmd match {
-      case Command(Face, Some(dir)) => ()
-      case Command(Start, None) => ()
-      case Command(Stop, None) => ()
+      case Face(dir) => ()
+      case Start => ()
+      case Stop => ()
       case _ => throw new Boom("not ruled out!")
     }
   }
 
-  val start = Command(Start, None)
-  val stop = Command(Stop, None)
-  val face_north = Command(Face, Some(North))
-  val face_east = Command(Face, Some(East))
-  val face_south = Command(Face, Some(South))
-  val face_west = Command(Face, Some(West))
-  val garbage1 = Command(Face, None)
-  val garbage2 = Command(Start, Some(North))
-
   def go(): Unit = {
-    do_cmd(face_north)
-    do_cmd(face_west)
-    do_cmd(face_south)
-    do_cmd(face_east)
-    do_cmd(start)
-    do_cmd(stop)
-    try_it(do_cmd(garbage1))
-    try_it(do_cmd(garbage2))
+    do_cmd(Face(North))
+    do_cmd(Face(West))
+    do_cmd(Face(South))
+    do_cmd(Face(East))
+    do_cmd(Start)
+    do_cmd(Stop)
   }
 
   def main(args: Array[String]): Unit = {
