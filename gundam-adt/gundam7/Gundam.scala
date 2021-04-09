@@ -69,8 +69,7 @@ object Gundam {
   def movingLabel(cmd: Command[Moving, _]): String =
     cmd match {
       case Stop => "stop"
-      case _: Chain[t, _, _] =>
-        implicitly[Moving =:= t]
+      case _: Chain[Moving, _, _] =>
         "chain"
     }
 
