@@ -1,8 +1,8 @@
 class Boom(s: String) extends Exception(s)
 
-sealed trait Direction
+sealed abstract class Direction
 
-object Direction extends Enumeration {
+object Direction {
   case object North extends Direction
   case object East extends Direction
   case object South extends Direction
