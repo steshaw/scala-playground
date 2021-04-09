@@ -35,8 +35,7 @@ object Gundam {
     try {
       f
     } catch {
-      case e: Boom => println(e)
-      case e: MatchError => println("didn't cover all cases :(")
+      case e @ (_: Boom | _: MatchError) => println(e)
     }
   }
 
