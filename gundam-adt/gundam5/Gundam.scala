@@ -42,7 +42,26 @@ object Gundam {
     }
   }
 
-  val instructions =
+  implicit class Compose(cmd1: Command) {
+    def ~>(cmd2: Command): Command =
+      Chain(cmd1, cmd2)
+  }
+
+  val start = Start
+  val stop = Stop
+  def face(dir: Direction) = Face(dir)
+
+  val north = North
+  val east = East
+  val south = South
+  val west = West
+
+  val startStop = start ~> stop
+
+  def move(d: Direction) =
+    face(d) ~> start ~> stop
+
+  val cmds1 =
     Chain(
       Chain(
         Chain(
@@ -59,6 +78,8 @@ object Gundam {
         Stop
       )
     )
+
+  val cmds2 = move(east) ~> move(west)
 
   def go(): Unit = {
     do_cmd(Face(North))
