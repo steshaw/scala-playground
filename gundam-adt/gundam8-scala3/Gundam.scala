@@ -1,10 +1,10 @@
 class Boom(s: String) extends Exception(s)
 
-sealed abstract class Direction
-case object North extends Direction
-case object East extends Direction
-case object South extends Direction
-case object West extends Direction
+enum Direction:
+  case North
+  case East
+  case South
+  case West
 
 sealed trait Status
 final abstract class Idle extends Status
@@ -23,6 +23,7 @@ case class State(
 )
 
 object Gundam:
+  import Direction._
 
   def try_it(f: => Unit): Unit =
     try
