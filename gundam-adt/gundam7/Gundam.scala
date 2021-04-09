@@ -69,7 +69,9 @@ object Gundam {
   def movingLabel(cmd: Command[Moving, _]): String =
     cmd match {
       case Stop => "stop"
-      case _: Chain[_, _, _] => "chain"
+      case _: Chain[t, _, _] =>
+        implicitly[Moving =:= t]
+        "chain"
     }
 
   implicit class Compose[A, B](cmd1: Command[A, B]) {
