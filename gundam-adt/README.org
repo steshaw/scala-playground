@@ -1,0 +1,4 @@
+Experiments inspired by
+
+- https://github.com/nrinaudo/far-more-adt
+- https://youtu.be/MqGWb7OvVqs
