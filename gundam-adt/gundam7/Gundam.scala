@@ -6,15 +6,14 @@ case object East extends Direction
 case object South extends Direction
 case object West extends Direction
 
-sealed trait IdleOrMoving
-final abstract class Idle extends IdleOrMoving
-final abstract class Moving extends IdleOrMoving
+final abstract class Idle
+final abstract class Moving
 
-sealed trait Command[Before <: IdleOrMoving, After <: IdleOrMoving]
+sealed trait Command[Before, After]
 case class Face(dir: Direction) extends Command[Idle, Idle]
 case object Start extends Command[Idle, Moving]
 case object Stop extends Command[Moving, Idle]
-case class Chain[A <: IdleOrMoving, B <: IdleOrMoving, C <: IdleOrMoving](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
+case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
 case class State(
   path: List[Direction],
@@ -32,7 +31,7 @@ object Gundam {
     }
   }
 
-  def apply[Before <: IdleOrMoving, After <: IdleOrMoving](
+  def apply[Before, After](
     cmd: Command[Before, After],
     state: State
   ): State = {
@@ -74,8 +73,8 @@ object Gundam {
         "chain"
     }
 
-  implicit class Compose[A <: IdleOrMoving, B <: IdleOrMoving](cmd1: Command[A, B]) {
-    def ~>[C <: IdleOrMoving](cmd2: Command[B, C]): Command[A, C] =
+  implicit class Compose[A, B](cmd1: Command[A, B]) {
+    def ~>[C](cmd2: Command[B, C]): Command[A, C] =
       Chain(cmd1, cmd2)
   }
 
