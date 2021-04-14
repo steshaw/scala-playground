@@ -23,14 +23,6 @@ case class State(
 
 object Gundam {
 
-  def try_it(f: => Unit): Unit = {
-    try {
-      f
-    } catch {
-      case e @ (_: Boom | _: MatchError) => println(e)
-    }
-  }
-
   def apply[Before, After](
     cmd: Command[Before, After],
     state: State

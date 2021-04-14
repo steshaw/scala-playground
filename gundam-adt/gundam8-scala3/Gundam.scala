@@ -6,15 +6,14 @@ enum Direction:
   case South
   case West
 
-sealed trait Status
-final abstract class Idle extends Status
-final abstract class Moving extends Status
+final abstract class Idle
+final abstract class Moving
 
-sealed trait Command[Before <: Status, After <: Status]
+sealed trait Command[Before, After]
 case class Face(dir: Direction) extends Command[Idle, Idle]
 case object Start extends Command[Idle, Moving]
 case object Stop extends Command[Moving, Idle]
-case class Chain[A <: Status, B <: Status, C <: Status](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
+case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
 case class State(
   path: List[Direction],
@@ -31,7 +30,7 @@ object Gundam:
     catch
       case e @ (_: Boom | _: MatchError) => println(e)
 
-  def apply[Before <: Status, After <: Status](
+  def apply[Before, After](
     cmd: Command[Before, After],
     state: State
   ): State =
@@ -69,8 +68,8 @@ object Gundam:
       case _: Chain[Moving, _, _] =>
         "chain"
 
-  implicit class Compose[A <: Status, B <: Status](cmd1: Command[A, B]):
-    def ~>[C <: Status](cmd2: Command[B, C]): Command[A, C] =
+  implicit class Compose[A, B](cmd1: Command[A, B]):
+    def ~>[C](cmd2: Command[B, C]): Command[A, C] =
       Chain(cmd1, cmd2)
 
   val start = Start
