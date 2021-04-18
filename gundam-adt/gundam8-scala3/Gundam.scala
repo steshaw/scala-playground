@@ -50,9 +50,8 @@ object Gundam:
           State(path, dir, false)
         else
           throw new Boom("Trying to stop while not moving!")
-      case Chain(cmd1, cmd2) => {
+      case Chain(cmd1, cmd2) =>
         apply(cmd2, apply(cmd1, state))
-      }
 
   def label(d: Direction) =
     d match
