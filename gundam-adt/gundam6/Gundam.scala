@@ -22,10 +22,14 @@ case object Start extends Command
 case object Stop extends Command
 case class Chain(cmd1: Command, cmd2: Command) extends Command
 
+sealed abstract class Status
+case object Idle extends Status
+case object Moving extends Status
+
 case class State(
   path: List[Direction],
   dir: Direction,
-  moving: Boolean
+  moving: Status
 )
 
 object Gundam {
@@ -42,19 +46,20 @@ object Gundam {
     val State(path, dir, moving) = state
     cmd match {
       case Face(dir) =>
-        if (state.moving)
-          throw new Boom(s"Trying to face ${dir} when moving!")
-        else State(path, dir, false)
+        state.moving match {
+          case Idle => State(path, dir, Idle)
+          case Moving => throw new Boom(s"Trying to face ${dir} when moving!")
+        }
       case Start =>
-        if (state.moving)
-          throw new Boom("Trying to start while moving!")
-        else
-          State(path :+ dir, dir, true)
+        state.moving match {
+          case Idle => State(path :+ dir, dir, Moving)
+          case Moving => throw new Boom("Trying to start while moving!")
+        }
       case Stop =>
-        if (state.moving)
-          State(path, dir, false)
-        else
-          throw new Boom("Trying to stop while not moving!")
+        state.moving match {
+          case Idle => throw new Boom("Trying to stop while not moving!")
+          case Moving => State(path, dir, Idle)
+        }
       case Chain(cmd1, cmd2) => {
         apply(cmd2, apply(cmd1, state))
       }
@@ -108,7 +113,7 @@ object Gundam {
     State(
       path = Nil,
       dir = North,
-      moving = false
+      moving = Idle
     )
 
   def go(): Unit = {
@@ -141,7 +146,7 @@ object Gundam {
       State(
         List(East, West),
         West,
-        false
+        Idle
       )
     assert(finalState1 == expectedState)
     val finalState2 = apply(cmds2, defaultState)
