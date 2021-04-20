@@ -1,6 +1,14 @@
--- Seems not in Prelude.
+---------------------------------------------------------------------
+-- Not in Prelude yet.
+---------------------------------------------------------------------
+
 unless : Applicative f => Bool -> Lazy (f ()) -> f ()
 unless condition action = when (not condition) action
+
+(=<<) : Monad m => (a -> m b) -> m a -> m b
+(=<<) = flip (>>=)
+infixl 3 =<<
+---------------------------------------------------------------------
 
 assertIt : Bool -> String -> IO ()
 assertIt condition msg =
@@ -87,32 +95,28 @@ Eq State where
   (MkState p1 d1 m1) == (MkState p2 d2 m2) =
     p1 == p2 && d1 == d2 && m1 == m2
 
+partial
 apply : Command before after -> State -> State
 apply cmd state =
   let (MkState path dir moving) = state
   in case cmd of
     Face newDir =>
       if moving == Moving then
-        ?boom1 $ "Trying to face " ++ show newDir ++ " when moving!"
+        idris_crash $ "Trying to face " ++ show newDir ++ " when moving!"
       else
         MkState path newDir Idle
     Start =>
       if moving == Moving then
-        ?boom2 "Trying to start while moving!"
+        idris_crash "Trying to start while moving!"
       else
         MkState (path ++ [dir]) dir Moving
     Stop =>
       if moving == Moving then
         MkState path dir Idle
       else
-        ?boom3 "Trying to stop while not moving!"
+        idris_crash "Trying to stop while not moving!"
     Chain cmd1 cmd2 =>
       apply cmd2 (apply cmd1 state)
-
--- Flipped bind doesn't seem to be defined.
-(=<<) : Monad m => (a -> m b) -> m a -> m b
-(=<<) = flip (>>=)
-infixl 3 =<<
 
 applyE : Command before after -> State -> Either String State
 applyE cmd state =
@@ -226,6 +230,7 @@ goE = do
   let (Right state6) = applyE Stop state5
   printLn state6
 
+partial
 go : IO ()
 go = do
   let state0 = defaultState
