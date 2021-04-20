@@ -113,6 +113,7 @@ object Gundam:
     )
 
   def go(): Unit =
+    println("go")
     val state0 = defaultState
     println(state0)
     val state1 = apply(Face(North), state0)
@@ -139,6 +140,7 @@ object Gundam:
     assert(cmds1 != cmds2)
     println(cmds1)
     println(cmds2)
+
     val finalState1 = apply(cmds1, defaultState)
     println(finalState1)
     val expectedState =
@@ -148,9 +150,11 @@ object Gundam:
         Idle
       )
     assert(finalState1 == expectedState)
+
     val finalState2 = apply(cmds2, defaultState)
     println(finalState2)
     assert(finalState2.path == List(East, West))
     // Final state of cmds1 and cmd2 are the same.
     assert(finalState1 == finalState2)
+
     go()

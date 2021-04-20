@@ -121,20 +121,20 @@ apply cmd state =
   let (MkState path dir moving) = state
   in case cmd of
     Face newDir =>
---      if moving then
---        boom $ "Trying to face " ++ show newDir ++ " when moving!"
---      else
+      if moving == Moving then
+        ?boom1 $ "Trying to face " ++ show newDir ++ " when moving!"
+      else
         MkState path newDir Idle
     Start =>
---      if moving then
---        boom "Trying to start while moving!"
---      else
+      if moving == Moving then
+        ?boom2 "Trying to start while moving!"
+      else
         MkState (path ++ [dir]) dir Moving
     Stop =>
---      if moving then
+      if moving == Moving then
         MkState path dir Idle
---      else
---        boom "Trying to stop while not moving!"
+      else
+        ?boom3 "Trying to stop while not moving!"
     Chain cmd1 cmd2 =>
       apply cmd2 (apply cmd1 state)
 
