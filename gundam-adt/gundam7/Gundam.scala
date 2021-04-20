@@ -10,11 +10,11 @@ sealed abstract class Status
 case object Idle extends Status
 case object Moving extends Status
 
-sealed trait Command[Before, After]
+sealed trait Command[Before <: Status, After <: Status]
 case class Face(dir: Direction) extends Command[Idle.type, Idle.type]
 case object Start extends Command[Idle.type, Moving.type]
 case object Stop extends Command[Moving.type, Idle.type]
-case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
+case class Chain[A <: Status, B <: Status, C <: Status](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
 case class State(
   path: List[Direction],
@@ -24,7 +24,7 @@ case class State(
 
 object Gundam {
 
-  def apply[Before, After](
+  def apply[Before <: Status, After <: Status](
     cmd: Command[Before, After],
     state: State
   ): State = {
@@ -67,8 +67,8 @@ object Gundam {
         "chain"
     }
 
-  implicit class Compose[A, B](cmd1: Command[A, B]) {
-    def ~>[C](cmd2: Command[B, C]): Command[A, C] =
+  implicit class Compose[A <: Status, B <: Status](cmd1: Command[A, B]) {
+    def ~>[C <: Status](cmd2: Command[B, C]): Command[A, C] =
       Chain(cmd1, cmd2)
   }
 
