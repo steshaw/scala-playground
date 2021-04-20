@@ -1,42 +1,13 @@
---import Control.Exception
---import Control.Monad (unless)
-
---import Debug.Error
-
 -- Seems not in Prelude.
 unless : Applicative f => Bool -> Lazy (f ()) -> f ()
 unless condition action = when (not condition) action
 
-{-
-boom = error
-
-data BoomException = BoomException String CallStack
-
-instance Exception BoomException
-
-instance Show BoomException where
-  show (BoomException msg cs) =
-    "BoomException: " ++ msg ++ "\n" ++ prettyCallStack cs
-
--- TODO: show line number here.
-assertIt :: HasCallStack => Bool -> String -> IO ()
-assertIt condition msg =
-  unless condition $
-    throwIO $ BoomException msg callStack
--}
 assertIt : Bool -> String -> IO ()
 assertIt condition msg =
   unless condition $ do
     putStrLn "ARGH ["
     putStrLn $ "  " ++ msg
     putStrLn "]"
-{-
-  if not condition then do
-    putStrLn "ARGH ["
-    putStrLn $ "  " ++ msg
-    putStrLn "]"
-  else pure ()
--}
 
 data Direction = North | East | South | West
 
@@ -137,33 +108,6 @@ apply cmd state =
         ?boom3 "Trying to stop while not moving!"
     Chain cmd1 cmd2 =>
       apply cmd2 (apply cmd1 state)
-
-{-
-apply :: Command before after -> State -> State
-apply cmd state =
-  let (State path dir moving) = state
-  in
-  case cmd of
-    Face newDir ->
-      if moving then
-        boom $ "Trying to face " ++ show newDir ++ " when moving!"
-      else State path newDir False
-    Start ->
-      if moving then
-        boom "Trying to start while moving!"
-      else
-        State (path ++ [dir]) dir True
-    Stop ->
-      if moving then
-        State path dir False
-      else
-        boom "Trying to stop while not moving!"
-    Chain cmd1 cmd2 ->
-      apply cmd2 (apply cmd1 state)
--}
-
-Error : Type
-Error = String
 
 -- Flipped bind doesn't seem to be defined.
 (=<<) : Monad m => (a -> m b) -> m a -> m b
