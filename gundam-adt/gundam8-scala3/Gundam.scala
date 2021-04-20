@@ -9,22 +9,27 @@ enum Direction:
 final abstract class Idle
 final abstract class Moving
 
+sealed abstract class Status[T]
+case object Idle extends Status[Idle]
+case object Moving extends Status[Moving]
+
+/*
+enum Status:
+  case Moving
+  case Idle
+import Status._
+*/
+
 sealed trait Command[Before, After]
 case class Face(dir: Direction) extends Command[Idle, Idle]
 case object Start extends Command[Idle, Moving]
 case object Stop extends Command[Moving, Idle]
 case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
-enum Status:
-  case Moving
-  case Idle
-
-import Status._
-
-case class State(
+case class State[T](
   path: List[Direction],
   dir: Direction,
-  moving: Status
+  moving: Status[T]
 )
 
 object Gundam:
@@ -38,8 +43,8 @@ object Gundam:
 
   def apply[Before, After](
     cmd: Command[Before, After],
-    state: State
-  ): State =
+    state: State[Before]
+  ): State[After] =
     val State(path, dir, moving) = state
     cmd match
       case Face(dir) =>
@@ -113,7 +118,7 @@ object Gundam:
     State(
       path = Nil,
       dir = North,
-      moving = Status.Idle
+      moving = Idle
     )
 
   def go(): Unit =
@@ -149,7 +154,7 @@ object Gundam:
       State(
         List(East, West),
         West,
-        Status.Idle
+        Idle
       )
     assert(finalState1 == expectedState)
     val finalState2 = apply(cmds2, defaultState)
