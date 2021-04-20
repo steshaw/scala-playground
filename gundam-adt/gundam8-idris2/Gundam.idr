@@ -10,12 +10,11 @@ unless condition action = when (not condition) action
 infixl 3 =<<
 ---------------------------------------------------------------------
 
-assertIt : Bool -> String -> IO ()
-assertIt condition msg =
-  unless condition $ do
-    putStrLn "ARGH ["
-    putStrLn $ "  " ++ msg
-    putStrLn "]"
+partial
+assert : Bool -> String -> IO ()
+assert condition msg =
+  unless condition $
+    idris_crash msg
 
 data Direction = North | East | South | West
 
@@ -258,22 +257,23 @@ originalMain = do
 
   -- cmds1 and cmds2 seems equivalent but do so via different
   -- nesting of Chains.
-  assertIt (cmds1 /= cmds2) "Commands should not be equal"
-  assertIt (cmds1 == cmds1) "cmd1 should equal itself!"
+  assert (cmds1 /= cmds2) "Commands should not be equal"
+  assert (cmds1 == cmds1) "cmd1 should equal itself!"
+  --assert (cmds1 /= cmds1) "testing!"
   printLn cmds1
   printLn cmds2
 
   let finalState1 = apply cmds1 defaultState
   printLn finalState1
   let expectedState = MkState [East, West] West Idle
-  assertIt (finalState1 == expectedState) "final state not expected :("
+  assert (finalState1 == expectedState) "final state not expected :("
 
   let finalState2 = apply cmds2 defaultState
   printLn finalState2
-  assertIt (statePath finalState2 == [East, West]) "state paths disagree :("
+  assert (statePath finalState2 == [East, West]) "state paths disagree :("
 
   -- Final state of cmds1 and cmd2 are the same.
-  assertIt (finalState1 == finalState2) "States of cmd1 and cmds2 disagree :("
+  assert (finalState1 == finalState2) "States of cmd1 and cmds2 disagree :("
 
   putStrLn "-- go --"
   go
