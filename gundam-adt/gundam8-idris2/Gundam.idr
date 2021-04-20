@@ -106,7 +106,7 @@ record State where
   constructor MkState
   statePath : List Direction
   stateDir : Direction
-  stateMoving : Bool
+  stateMoving : Status
 
 Show State where
   show (MkState p d m) =
@@ -124,15 +124,15 @@ apply cmd state =
 --      if moving then
 --        boom $ "Trying to face " ++ show newDir ++ " when moving!"
 --      else
-        MkState path newDir False
+        MkState path newDir Idle
     Start =>
 --      if moving then
 --        boom "Trying to start while moving!"
 --      else
-        MkState (path ++ [dir]) dir True
+        MkState (path ++ [dir]) dir Moving
     Stop =>
 --      if moving then
-        MkState path dir False
+        MkState path dir Idle
 --      else
 --        boom "Trying to stop while not moving!"
     Chain cmd1 cmd2 =>
@@ -175,18 +175,18 @@ applyE cmd state =
   let (MkState path dir moving) = state
   in case cmd of
     Face newDir =>
-      if moving then
+      if moving == Moving then
         Left $ "Trying to face " ++ show newDir ++ " when moving!"
       else
-        Right $ MkState path newDir False
+        Right $ MkState path newDir Idle
     Start =>
-      if moving then
+      if moving == Moving then
         Left $ "Trying to start while moving!"
       else
-        Right $ MkState (path ++ [dir]) dir True
+        Right $ MkState (path ++ [dir]) dir Moving
     Stop =>
-      if moving then
-        Right $ MkState path dir False
+      if moving == Moving then
+        Right $ MkState path dir Idle
       else
         Left $ "Trying to stop while not moving!"
     Chain cmd1 cmd2 => do
@@ -261,7 +261,7 @@ defaultState : State
 defaultState = MkState {
   statePath = [],
   stateDir = North,
-  stateMoving = False
+  stateMoving = Idle
 }
 
 partial
@@ -316,7 +316,7 @@ originalMain = do
 
   let finalState1 = apply cmds1 defaultState
   printLn finalState1
-  let expectedState = MkState [East, West] West False
+  let expectedState = MkState [East, West] West Idle
   assertIt (finalState1 == expectedState) "final state not expected :("
 
   let finalState2 = apply cmds2 defaultState
@@ -341,7 +341,7 @@ main = do
   printLn $ Moving == Moving
   printLn $ Idle == Moving
   printLn $ defaultState == defaultState
-  printLn $ defaultState == MkState [] North False
+  printLn $ defaultState == MkState [] North Idle
   putStrLn ""
   putStrLn "----- Original main"
   originalMain
