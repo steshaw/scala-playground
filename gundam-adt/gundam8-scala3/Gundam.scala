@@ -7,8 +7,8 @@ enum Direction:
   case West
 
 enum Status:
-  case Moving
   case Idle
+  case Moving
 import Status._
 
 sealed trait Command[Before <: Status, After <: Status]
@@ -17,10 +17,10 @@ case object Start extends Command[Idle.type, Moving.type]
 case object Stop extends Command[Moving.type, Idle.type]
 case class Chain[A <: Status, B <: Status, C <: Status](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
-case class State(
+case class State[T <: Status](
   path: List[Direction],
   dir: Direction,
-  moving: Status
+  moving: T
 )
 
 object Gundam:
@@ -34,8 +34,8 @@ object Gundam:
 
   def apply[Before <: Status, After <: Status](
     cmd: Command[Before, After],
-    state: State
-  ): State =
+    state: State[Before]
+  ): State[After] =
     val State(path, dir, moving) = state
     cmd match
       case Face(dir) =>
@@ -105,7 +105,7 @@ object Gundam:
 
   val cmds2 = move(east) ~> move(west)
 
-  val defaultState =
+  val defaultState: State[Idle.type] =
     State(
       path = Nil,
       dir = North,
