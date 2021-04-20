@@ -6,18 +6,15 @@ case object East extends Direction
 case object South extends Direction
 case object West extends Direction
 
-final abstract class Idle
-final abstract class Moving
-
-sealed trait Command[Before, After]
-case class Face(dir: Direction) extends Command[Idle, Idle]
-case object Start extends Command[Idle, Moving]
-case object Stop extends Command[Moving, Idle]
-case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
-
 sealed abstract class Status
 case object Idle extends Status
 case object Moving extends Status
+
+sealed trait Command[Before, After]
+case class Face(dir: Direction) extends Command[Idle.type, Idle.type]
+case object Start extends Command[Idle.type, Moving.type]
+case object Stop extends Command[Moving.type, Idle.type]
+case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
 case class State(
   path: List[Direction],
@@ -63,10 +60,10 @@ object Gundam {
     }
 
   // Smarter exhaustivity checking.
-  def movingLabel(cmd: Command[Moving, _]): String =
+  def movingLabel(cmd: Command[Moving.type, _]): String =
     cmd match {
       case Stop => "stop"
-      case _: Chain[Moving, _, _] =>
+      case _: Chain[Moving.type, _, _] =>
         "chain"
     }
 
