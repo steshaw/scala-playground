@@ -6,30 +6,21 @@ enum Direction:
   case South
   case West
 
-final abstract class Idle
-final abstract class Moving
-
-sealed abstract class Status[T]
-case object Idle extends Status[Idle]
-case object Moving extends Status[Moving]
-
-/*
 enum Status:
   case Moving
   case Idle
 import Status._
-*/
 
-sealed trait Command[Before, After]
-case class Face(dir: Direction) extends Command[Idle, Idle]
-case object Start extends Command[Idle, Moving]
-case object Stop extends Command[Moving, Idle]
-case class Chain[A, B, C](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
+sealed trait Command[Before <: Status, After <: Status]
+case class Face(dir: Direction) extends Command[Idle.type, Idle.type]
+case object Start extends Command[Idle.type, Moving.type]
+case object Stop extends Command[Moving.type, Idle.type]
+case class Chain[A <: Status, B <: Status, C <: Status](cmd1: Command[A, B], cmd2: Command[B, C]) extends Command[A, C]
 
-case class State[T](
+case class State(
   path: List[Direction],
   dir: Direction,
-  moving: Status[T]
+  moving: Status
 )
 
 object Gundam:
@@ -41,10 +32,10 @@ object Gundam:
     catch
       case e @ (_: Boom | _: MatchError) => println(e)
 
-  def apply[Before, After](
+  def apply[Before <: Status, After <: Status](
     cmd: Command[Before, After],
-    state: State[Before]
-  ): State[After] =
+    state: State
+  ): State =
     val State(path, dir, moving) = state
     cmd match
       case Face(dir) =>
@@ -70,14 +61,14 @@ object Gundam:
       case West => "west"
 
   // Smarter exhaustivity checking.
-  def movingLabel(cmd: Command[Moving, _]): String =
+  def movingLabel(cmd: Command[Moving.type, _]): String =
     cmd match
       case Stop => "stop"
-      case _: Chain[Moving, _, _] =>
+      case _: Chain[Moving.type, _, _] =>
         "chain"
 
-  implicit class Compose[A, B](cmd1: Command[A, B]):
-    def ~>[C](cmd2: Command[B, C]): Command[A, C] =
+  implicit class Compose[A <: Status, B <: Status](cmd1: Command[A, B]):
+    def ~>[C <: Status](cmd2: Command[B, C]): Command[A, C] =
       Chain(cmd1, cmd2)
 
   val start = Start
