@@ -1,0 +1,1 @@
+idris2 -x main Gundam.idr | diff - expected.output

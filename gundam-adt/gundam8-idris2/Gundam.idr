@@ -100,20 +100,17 @@ apply cmd state =
   let (MkState path dir moving) = state
   in case cmd of
     Face newDir =>
-      if moving == Moving then
-        idris_crash $ "Trying to face " ++ show newDir ++ " when moving!"
-      else
-        MkState path newDir Idle
+      case moving of
+        Idle => MkState path newDir Idle
+        Moving => idris_crash $ "Trying to face " ++ show newDir ++ " when moving!"
     Start =>
-      if moving == Moving then
-        idris_crash "Trying to start while moving!"
-      else
-        MkState (path ++ [dir]) dir Moving
+      case moving of
+        Idle => MkState (path ++ [dir]) dir Moving
+        Moving => idris_crash "Trying to start while moving!"
     Stop =>
-      if moving == Moving then
-        MkState path dir Idle
-      else
-        idris_crash "Trying to stop while not moving!"
+      case moving of
+        Idle => idris_crash "Trying to stop while not moving!"
+        Moving => MkState path dir Idle
     Chain cmd1 cmd2 =>
       apply cmd2 (apply cmd1 state)
 
@@ -122,20 +119,17 @@ applyE cmd state =
   let (MkState path dir moving) = state
   in case cmd of
     Face newDir =>
-      if moving == Moving then
-        Left $ "Trying to face " ++ show newDir ++ " when moving!"
-      else
-        Right $ MkState path newDir Idle
+      case moving of
+        Idle => Right $ MkState path newDir Idle
+        Moving => Left $ "Trying to face " ++ show newDir ++ " when moving!"
     Start =>
-      if moving == Moving then
-        Left $ "Trying to start while moving!"
-      else
-        Right $ MkState (path ++ [dir]) dir Moving
+      case moving of
+        Idle => Right $ MkState (path ++ [dir]) dir Moving
+        Moving => Left "Trying to start while moving!"
     Stop =>
-      if moving == Moving then
-        Right $ MkState path dir Idle
-      else
-        Left $ "Trying to stop while not moving!"
+      case moving of
+        Idle => Left "Trying to stop while not moving!"
+        Moving => Right $ MkState path dir Idle
     Chain cmd1 cmd2 => do
       applyE cmd2 =<< applyE cmd1 state
 

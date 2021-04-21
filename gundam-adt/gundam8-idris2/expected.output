@@ -1,0 +1,32 @@
+Hello, Idris2!
+True
+False
+True
+True
+False
+True
+True
+
+----- Original main
+west
+stop
+(Chain (Chain (Chain (Face East), (Chain Start, Stop)), (Face West)), (Chain Start, Stop))
+(Chain (Chain (Chain (Face East), Start), Stop), (Chain (Chain (Face West), Start), Stop))
+State([East, West], West, Idle)
+State([East, West], West, Idle)
+-- go --
+State([], North, Idle)
+State([], North, Idle)
+State([], West, Idle)
+State([], South, Idle)
+State([], East, Idle)
+State([East], East, Moving)
+State([East], East, Idle)
+-- goE --
+State([], North, Idle)
+State([], North, Idle)
+State([], West, Idle)
+State([], South, Idle)
+State([], East, Idle)
+State([East], East, Moving)
+State([East], East, Idle)
