@@ -80,58 +80,49 @@ erase (Chain cmd1 cmd2) = EChain (erase cmd1) (erase cmd2)
 Eq (Command status1 status2) where
   cmd1 == cmd2 = erase cmd1 == erase cmd2
 
-record State where
+record State (status: Status) where
   constructor MkState
   statePath : List Direction
   stateDir : Direction
-  stateMoving : Status
+--  stateMoving : status
 
-Show State where
-  show (MkState p d m) =
-    "State(" ++ show p ++ ", " ++ show d ++ ", " ++ show m ++ ")"
+Show (State Moving) where
+  show (MkState p d) =
+    "State(" ++ show p ++ ", " ++ show d ++ ", " ++ "Moving" ++ ")"
 
-Eq State where
-  (MkState p1 d1 m1) == (MkState p2 d2 m2) =
-    p1 == p2 && d1 == d2 && m1 == m2
+Show (State Idle) where
+  show (MkState p d) =
+    "State(" ++ show p ++ ", " ++ show d ++ ", " ++ "Idle" ++ ")"
+
+Eq (State Idle) where
+  (MkState p1 d1) == (MkState p2 d2) =
+    p1 == p2 && d1 == d2
+Eq (State Moving) where
+  (MkState p1 d1) == (MkState p2 d2) =
+    p1 == p2 && d1 == d2
 
 partial
-apply : Command before after -> State -> State
+apply : Command before after -> State before -> State after
 apply cmd state =
-  let (MkState path dir moving) = state
+  let (MkState path dir) = state
   in case cmd of
     Face newDir =>
-      case moving of
-        Idle => MkState path newDir Idle
-        Moving => idris_crash $ "Trying to face " ++ show newDir ++ " when moving!"
+      --case before of
+        --Idle =>
+               MkState path newDir
+        --Moving => idris_crash $ "Trying to face " ++ show newDir ++ " when moving!"
     Start =>
-      case moving of
-        Idle => MkState (path ++ [dir]) dir Moving
-        Moving => idris_crash "Trying to start while moving!"
+      --case moving of
+        --Idle =>
+               MkState (path ++ [dir]) dir
+        --Moving => idris_crash "Trying to start while moving!"
     Stop =>
-      case moving of
-        Idle => idris_crash "Trying to stop while not moving!"
-        Moving => MkState path dir Idle
+      --case moving of
+        --Idle => idris_crash "Trying to stop while not moving!"
+        --Moving =>
+                 MkState path dir
     Chain cmd1 cmd2 =>
       apply cmd2 (apply cmd1 state)
-
-applyE : Command before after -> State -> Either String State
-applyE cmd state =
-  let (MkState path dir moving) = state
-  in case cmd of
-    Face newDir =>
-      case moving of
-        Idle => Right $ MkState path newDir Idle
-        Moving => Left $ "Trying to face " ++ show newDir ++ " when moving!"
-    Start =>
-      case moving of
-        Idle => Right $ MkState (path ++ [dir]) dir Moving
-        Moving => Left "Trying to start while moving!"
-    Stop =>
-      case moving of
-        Idle => Left "Trying to stop while not moving!"
-        Moving => Right $ MkState path dir Idle
-    Chain cmd1 cmd2 => do
-      applyE cmd2 =<< applyE cmd1 state
 
 label : Direction -> String
 label North = "north"
@@ -198,30 +189,12 @@ cmds1 =
 cmds2 : Command Idle Idle
 cmds2 = move east ~> move west
 
-defaultState : State
+defaultState : State Idle
 defaultState = MkState {
   statePath = [],
-  stateDir = North,
-  stateMoving = Idle
+  stateDir = North
+--  stateMoving = Idle
 }
-
-partial
-goE : IO ()
-goE = do
-  let state0 = defaultState
-  printLn state0
-  let (Right state1) = applyE (Face North) state0
-  printLn state1
-  let (Right state2) = applyE (Face West) state1
-  printLn state2
-  let (Right state3) = applyE (Face South) state2
-  printLn state3
-  let (Right state4) = applyE (Face East) state3
-  printLn state4
-  let (Right state5) = applyE Start state4
-  printLn state5
-  let (Right state6) = applyE Stop state5
-  printLn state6
 
 partial
 go : IO ()
@@ -259,7 +232,7 @@ originalMain = do
 
   let finalState1 = apply cmds1 defaultState
   printLn finalState1
-  let expectedState = MkState [East, West] West Idle
+  let expectedState = MkState [East, West] West
   assert (finalState1 == expectedState) "final state not expected :("
 
   let finalState2 = apply cmds2 defaultState
@@ -271,8 +244,6 @@ originalMain = do
 
   putStrLn "-- go --"
   go
-  putStrLn "-- goE --"
-  goE
 
 partial
 main : IO ()
@@ -284,7 +255,7 @@ main = do
   printLn $ Moving == Moving
   printLn $ Idle == Moving
   printLn $ defaultState == defaultState
-  printLn $ defaultState == MkState [] North Idle
+  printLn $ defaultState == MkState [] North
   putStrLn ""
   putStrLn "----- Original main"
   originalMain
