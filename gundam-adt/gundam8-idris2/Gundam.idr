@@ -86,13 +86,15 @@ record State (status: Status) where
   stateDir : Direction
 --  stateMoving : status
 
-Show (State Moving) where
+{status: Status} -> Show (State status) where
   show (MkState p d) =
-    "State(" ++ show p ++ ", " ++ show d ++ ", " ++ "Moving" ++ ")"
+    "State(" ++ show p ++ ", " ++ show d ++ ", " ++ show status ++ ")"
 
+{-
 Show (State Idle) where
   show (MkState p d) =
     "State(" ++ show p ++ ", " ++ show d ++ ", " ++ "Idle" ++ ")"
+-}
 
 Eq (State Idle) where
   (MkState p1 d1) == (MkState p2 d2) =
