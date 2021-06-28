@@ -1,6 +1,6 @@
 scalaVersion := "2.13.5"
 
-name := "hello-world"
+name := "sysprops"
 organization := "org.steshaw"
 version := "0.1.0"
 
