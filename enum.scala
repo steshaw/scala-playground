@@ -3,6 +3,5 @@ enum Color:
 
 import Color.*
 
-def main(args: Array[String]) = {
+def main(args: Array[String]) =
   println(Red)
-}
