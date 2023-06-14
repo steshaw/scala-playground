@@ -1,8 +1,8 @@
-enum Color:
+enum Colour:
   case Red, Green, Blue
 
-import Color.*
+import Colour.*
 
 def main(args: Array[String]) =
-  for (c <- Color.values)
+  for (c <- Colour.values)
     println(c)
