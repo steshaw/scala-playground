@@ -1,7 +1,2 @@
-Writer
-*.hi
-*.o
-FunctionalProgramming
-*.exe
-*.exe.mdb
-hugsin
+*.class
+*.tasty
