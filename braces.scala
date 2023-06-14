@@ -1,7 +1,5 @@
 def times(n: Int)(block: => Unit) =
-  for (i <- 1 to n) {
-    block
-  }
+  (1 to n).foreach(_ => block)
 
 @main def main =
   times(3):
