@@ -1,6 +1,9 @@
 enum Option[+T]:
-  case Some(x: T) extends Option[T]
-  case None       extends Option[Nothing]
+  case Some(x: T)
+  case None
+
+val n42 = Option.Some(42)
+val none = Option.None
 
 @main def main =
   {
