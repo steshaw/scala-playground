@@ -1,5 +1,5 @@
-/.metals/
-/.vscode/
+.metals/
+.vscode/
 /scala-28-examples/plugintemplate/.project
 *.class
 *.tasty
