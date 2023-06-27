@@ -40,17 +40,18 @@ def given3 =
   val intValue: Int = doubleValue // Does the implicit conversion.
   processValue(intValue) // Output: Found an integer: 3
 
-@main def main =
-  val list = List(3, 42, "Hello world!", 'x', Nil)
-  println("matchTest1")
-  list.foreach(matchTest1)
-  println("matchTest2")
-  list.foreach(matchTest2)
-  println("matchTest3")
-  list.foreach(matchTest3)
+object PatternMatching:
+  def main(args: Array[String]) =
+    val list = List(3, 42, "Hello world!", 'x', Nil)
+    println("matchTest1")
+    list.foreach(matchTest1)
+    println("matchTest2")
+    list.foreach(matchTest2)
+    println("matchTest3")
+    list.foreach(matchTest3)
 
-  println("given1"); given1
-  println("given2"); given2
-  println("given3"); given3
+    println("given1"); given1
+    println("given2"); given2
+    println("given3"); given3
 
 

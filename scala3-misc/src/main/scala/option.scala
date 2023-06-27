@@ -52,7 +52,8 @@ def option3 =
     println(x)
   }
 
-@main def main =
-  option1
-  option2
-  option3
+object Option:
+  def main(args: Array[String]) =
+    option1
+    option2
+    option3

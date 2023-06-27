@@ -9,6 +9,7 @@ def eval(expr: Expr): Int =
       case Constant(i) => i
       case Add(l, r) => eval(l) + eval(r)
 
-def main(args: Array[String]) =
-  val expr = Add(Constant(1), Add(Constant(20), Constant(21)))
-  println(s"${expr} = ${eval(expr)}")
+object HuttonsRazor:
+  def main(args: Array[String]) =
+    val expr = Add(Constant(1), Add(Constant(20), Constant(21)))
+    println(s"${expr} = ${eval(expr)}")
