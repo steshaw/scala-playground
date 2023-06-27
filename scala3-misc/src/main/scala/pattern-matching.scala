@@ -33,6 +33,7 @@ def given2 =
   processValue(doubleValue) // Output: Found an integer: 3
 
 def given3 =
+  import scala.language.implicitConversions
   given Conversion[Double, Int] with {
     def apply(value: Double): Int = value.toInt
   }
@@ -53,5 +54,4 @@ object PatternMatching:
     println("given1"); given1
     println("given2"); given2
     println("given3"); given3
-
 
